@@ -16,6 +16,15 @@
 %token COLCHETEDIREITO
 %token CHAVESQUERDA
 %token CHAVEDIREITA
+%token MENOR
+%token MENORIGUAL
+%token MAIOR
+%token MAIORIGUAL
+%token IGUAL
+%token DIFERENTE
+%token IF
+%token ELSE
+%token WHILE
 %token RETURN
 %token VOID
 %token INT
@@ -42,6 +51,7 @@ declaracao:
 
 declaracao_var:
     tipo IDENTIFICADOR PONTOVIRGULA
+    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA
     ;
 
 tipo:
@@ -65,6 +75,7 @@ lista_parametros:
 
 parametro:
     tipo IDENTIFICADOR
+    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO
     ;
 
 afirmacao_funcao:
@@ -83,11 +94,29 @@ lista_afirmacoes:
 
 afirmacao:
     afirmacao_expressao
+    | afirmacao_funcao
+    | afirmacao_selecao
+    | afirmacao_iterativa
+    | afirmacao_retorno
     ;
 
 afirmacao_expressao:
     expressao PONTOVIRGULA
     | PONTOVIRGULA
+    ;
+
+afirmacao_selecao:
+    IF PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao
+    | IF PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao ELSE afirmacao
+    ;
+
+afirmacao_iterativa:
+    WHILE PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao
+    ;
+
+afirmacao_retorno:
+    RETURN PONTOVIRGULA
+    | RETURN expressao PONTOVIRGULA
     ;
 
 expressao:
@@ -97,10 +126,21 @@ expressao:
 
 variavel:
     IDENTIFICADOR
+    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO
     ;
 
 expressao_simples:
-    expressao_matematica
+    expressao_matematica comparacao expressao_matematica
+    | expressao_matematica
+    ;
+
+comparacao:
+    MENOR
+    | MENORIGUAL
+    | MAIOR
+    | MAIORIGUAL
+    | IGUAL
+    | DIFERENTE
     ;
 
 expressao_matematica:
@@ -114,9 +154,34 @@ operacao_aditiva:
     ;
 
 termo:
-    PARENTESESQUERDO expressao_matematica PARENTESEDIREITO
+    termo operacao_multiplicativa fator
+    | fator
+    ;
+
+operacao_multiplicativa:
+    MULTIPLICACAO
+    | DIVISAO
+    ;
+
+fator:
+    PARENTESESQUERDO expressao PARENTESEDIREITO
     | variavel
+    | chamada_funcao
     | NUMERO
+    ;
+
+chamada_funcao:
+    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO
+    ;
+
+argumentos:
+    lista_argumentos
+    | /* empty */
+    ;
+
+lista_argumentos:
+    lista_argumentos VIRGULA expressao
+    | expressao
     ;
 
 %%
