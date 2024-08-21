@@ -22,6 +22,15 @@ whitespace  [ \t\n]+
 "]"           { printf("COLCHETEDIREITO: %s\n", yytext); return COLCHETEDIREITO; }
 "{"           { printf("CHAVESQUERDA: %s\n", yytext); return CHAVESQUERDA; }
 "}"           { printf("CHAVEDIREITA: %s\n", yytext); return CHAVEDIREITA; }
+"<"           { printf("MENOR: %s\n", yytext); return MENOR; }
+"<="          { printf("MENORIGUAL: %s\n", yytext); return MENORIGUAL; }
+">"           { printf("MAIOR: %s\n", yytext); return MAIOR; }
+">="          { printf("MAIORIGUAL: %s\n", yytext); return MAIORIGUAL; }
+"=="          { printf("IGUAL: %s\n", yytext); return IGUAL; }
+"!="          { printf("DIFERENTE: %s\n", yytext); return DIFERENTE; }
+"if"          { printf("IF: %s\n", yytext); return IF; }
+"else"        { printf("ELSE: %s\n", yytext); return ELSE; }
+"while"       { printf("WHILE: %s\n", yytext); return WHILE; }  
 "return"      { printf("RETURN: %s\n", yytext); return RETURN; }
 "void"        { printf("VOID: %s\n", yytext); return VOID; }
 "int"         { printf("INT: %s\n", yytext); return INT; }
