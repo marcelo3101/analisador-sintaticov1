@@ -50,8 +50,8 @@ declaracao:
     ;
 
 declaracao_var:
-    tipo IDENTIFICADOR PONTOVIRGULA
-    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA
+    tipo IDENTIFICADOR PONTOVIRGULA { printf("Declaração de variável\n"); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { printf("Declaração de variável\n"); }
     ;
 
 tipo:
@@ -60,7 +60,7 @@ tipo:
     ;
 
 declaracao_fun:
-    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao
+    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { printf("Declaração de função\n"); }
     ;
 
 parametros:
@@ -74,8 +74,8 @@ lista_parametros:
     ;
 
 parametro:
-    tipo IDENTIFICADOR
-    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO
+    tipo IDENTIFICADOR { printf("Parâmetro de função\n"); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { printf("Parâmetro de função"); }
     ;
 
 afirmacao_funcao:
@@ -125,8 +125,8 @@ expressao:
     ;
 
 variavel:
-    IDENTIFICADOR
-    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO
+    IDENTIFICADOR { printf("Uso do identificador\n"); }
+    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { printf("Uso do identificador\n"); }
     ;
 
 expressao_simples:
@@ -171,7 +171,7 @@ fator:
     ;
 
 chamada_funcao:
-    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO
+    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { printf("Chamada de função\n"); }
     ;
 
 argumentos:
