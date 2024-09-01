@@ -2,6 +2,10 @@
 #include <stdio.h>
 %}
 
+%union {
+    char *cadeia;
+}
+
 /* Definicoes de tokens */
 %token ATRIBUICAO
 %token ADICAO
@@ -28,7 +32,7 @@
 %token RETURN
 %token VOID
 %token INT
-%token IDENTIFICADOR
+%token <cadeia> IDENTIFICADOR
 %token NUMERO
 
 %start programa
@@ -50,8 +54,8 @@ declaracao:
     ;
 
 declaracao_var:
-    tipo IDENTIFICADOR PONTOVIRGULA { printf("Declaração de variável\n"); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { printf("Declaração de variável\n"); }
+    tipo IDENTIFICADOR PONTOVIRGULA { printf("Declaração da variável \"%s\"\n", $2); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { printf("Declaração de variável \"%s\"\n", $2); }
     ;
 
 tipo:
@@ -60,7 +64,7 @@ tipo:
     ;
 
 declaracao_fun:
-    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { printf("Declaração de função\n"); }
+    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { printf("Declaração da função \"%s\"\n", $2); }
     ;
 
 parametros:
@@ -74,8 +78,8 @@ lista_parametros:
     ;
 
 parametro:
-    tipo IDENTIFICADOR { printf("Parâmetro de função\n"); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { printf("Parâmetro de função"); }
+    tipo IDENTIFICADOR { printf("Parâmetro de função \"%s\"\n", $2); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { printf("Parâmetro de função \"%s\"", $2); }
     ;
 
 afirmacao_funcao:
@@ -125,8 +129,8 @@ expressao:
     ;
 
 variavel:
-    IDENTIFICADOR { printf("Uso do identificador\n"); }
-    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { printf("Uso do identificador\n"); }
+    IDENTIFICADOR { printf("Uso do identificador \"%s\"\n", $1); }
+    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { printf("Uso do identificador \"%s\"\n", $1); }
     ;
 
 expressao_simples:
@@ -171,7 +175,7 @@ fator:
     ;
 
 chamada_funcao:
-    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { printf("Chamada de função\n"); }
+    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { printf("Chamada da função \"%s\"\n", $1); }
     ;
 
 argumentos:

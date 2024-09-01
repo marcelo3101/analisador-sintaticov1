@@ -28,5 +28,16 @@
 #define INT 281
 #define IDENTIFICADOR 282
 #define NUMERO 283
+#ifdef YYSTYPE
+#undef  YYSTYPE_IS_DECLARED
+#define YYSTYPE_IS_DECLARED 1
+#endif
+#ifndef YYSTYPE_IS_DECLARED
+#define YYSTYPE_IS_DECLARED 1
+typedef union YYSTYPE {
+    char *cadeia;
+} YYSTYPE;
+#endif /* !YYSTYPE_IS_DECLARED */
+extern YYSTYPE yylval;
 
 #endif /* _yy_defines_h_ */

@@ -481,9 +481,10 @@ char *yytext;
 #line 1 "lexico.l"
 #line 2 "lexico.l"
 #include <stdio.h>
+#include <string.h> // strdup
 #include "y.tab.h"
-#line 486 "lex.yy.c"
 #line 487 "lex.yy.c"
+#line 488 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -700,9 +701,9 @@ YY_DECL
 		}
 
 	{
-#line 11 "lexico.l"
+#line 12 "lexico.l"
 
-#line 706 "lex.yy.c"
+#line 707 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -761,156 +762,156 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 12 "lexico.l"
-{ printf("ATRIBUICAO: %s\n", yytext); return ATRIBUICAO; }
+#line 13 "lexico.l"
+{ /* printf("ATRIBUICAO: %s\n", yytext); */ return ATRIBUICAO; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 13 "lexico.l"
-{ printf("ADICAO: %s\n", yytext); return ADICAO; }
+#line 14 "lexico.l"
+{ /* printf("ADICAO: %s\n", yytext); */ return ADICAO; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 14 "lexico.l"
-{ printf("SUBTRACAO: %s\n", yytext); return SUBTRACAO; }
+#line 15 "lexico.l"
+{ /* printf("SUBTRACAO: %s\n", yytext); */ return SUBTRACAO; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 15 "lexico.l"
-{ printf("MULTIPLICACAO: %s\n", yytext); return MULTIPLICACAO; }
+#line 16 "lexico.l"
+{ /* printf("MULTIPLICACAO: %s\n", yytext); */ return MULTIPLICACAO; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 16 "lexico.l"
-{ printf("DIVISAO: %s\n", yytext); return DIVISAO; }
+#line 17 "lexico.l"
+{ /* printf("DIVISAO: %s\n", yytext); */ return DIVISAO; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 17 "lexico.l"
-{ printf("PONTOVIRGULA: %s\n", yytext); return PONTOVIRGULA; }
+#line 18 "lexico.l"
+{ /* printf("PONTOVIRGULA: %s\n", yytext); */ return PONTOVIRGULA; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 18 "lexico.l"
-{ printf("VIRGULA: %s\n", yytext); return VIRGULA; }
+#line 19 "lexico.l"
+{ /* printf("VIRGULA: %s\n", yytext); */ return VIRGULA; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 19 "lexico.l"
-{ printf("PARENTESESQUERDO: %s\n", yytext); return PARENTESESQUERDO; }
+#line 20 "lexico.l"
+{ /* printf("PARENTESESQUERDO: %s\n", yytext); */ return PARENTESESQUERDO; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 20 "lexico.l"
-{ printf("PARENTESEDIREITO: %s\n", yytext); return PARENTESEDIREITO; }
+#line 21 "lexico.l"
+{ /* printf("PARENTESEDIREITO: %s\n", yytext); */ return PARENTESEDIREITO; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 21 "lexico.l"
-{ printf("COLCHETESQUERDO: %s\n", yytext); return COLCHETESQUERDO; }
+#line 22 "lexico.l"
+{ /* printf("COLCHETESQUERDO: %s\n", yytext); */ return COLCHETESQUERDO; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 22 "lexico.l"
-{ printf("COLCHETEDIREITO: %s\n", yytext); return COLCHETEDIREITO; }
+#line 23 "lexico.l"
+{ /* printf("COLCHETEDIREITO: %s\n", yytext); */ return COLCHETEDIREITO; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 23 "lexico.l"
-{ printf("CHAVESQUERDA: %s\n", yytext); return CHAVESQUERDA; }
+#line 24 "lexico.l"
+{ /* printf("CHAVESQUERDA: %s\n", yytext); */ return CHAVESQUERDA; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 24 "lexico.l"
-{ printf("CHAVEDIREITA: %s\n", yytext); return CHAVEDIREITA; }
+#line 25 "lexico.l"
+{ /* printf("CHAVEDIREITA: %s\n", yytext); */ return CHAVEDIREITA; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 25 "lexico.l"
-{ printf("MENOR: %s\n", yytext); return MENOR; }
+#line 26 "lexico.l"
+{ /* printf("MENOR: %s\n", yytext); */ return MENOR; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 26 "lexico.l"
-{ printf("MENORIGUAL: %s\n", yytext); return MENORIGUAL; }
+#line 27 "lexico.l"
+{ /* printf("MENORIGUAL: %s\n", yytext); */ return MENORIGUAL; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 27 "lexico.l"
-{ printf("MAIOR: %s\n", yytext); return MAIOR; }
+#line 28 "lexico.l"
+{ /* printf("MAIOR: %s\n", yytext); */ return MAIOR; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 28 "lexico.l"
-{ printf("MAIORIGUAL: %s\n", yytext); return MAIORIGUAL; }
+#line 29 "lexico.l"
+{ /* printf("MAIORIGUAL: %s\n", yytext); */ return MAIORIGUAL; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 29 "lexico.l"
-{ printf("IGUAL: %s\n", yytext); return IGUAL; }
+#line 30 "lexico.l"
+{ /* printf("IGUAL: %s\n", yytext); */ return IGUAL; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 30 "lexico.l"
-{ printf("DIFERENTE: %s\n", yytext); return DIFERENTE; }
+#line 31 "lexico.l"
+{ /* printf("DIFERENTE: %s\n", yytext); */ return DIFERENTE; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 31 "lexico.l"
-{ printf("IF: %s\n", yytext); return IF; }
+#line 32 "lexico.l"
+{ /* printf("IF: %s\n", yytext); */ return IF; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 32 "lexico.l"
-{ printf("ELSE: %s\n", yytext); return ELSE; }
+#line 33 "lexico.l"
+{ /* printf("ELSE: %s\n", yytext); */ return ELSE; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 33 "lexico.l"
-{ printf("WHILE: %s\n", yytext); return WHILE; }  
+#line 34 "lexico.l"
+{ /* printf("WHILE: %s\n", yytext); */ return WHILE; }  
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 34 "lexico.l"
-{ printf("RETURN: %s\n", yytext); return RETURN; }
+#line 35 "lexico.l"
+{ /* printf("RETURN: %s\n", yytext); */ return RETURN; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 35 "lexico.l"
-{ printf("VOID: %s\n", yytext); return VOID; }
+#line 36 "lexico.l"
+{ /* printf("VOID: %s\n", yytext); */ return VOID; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 36 "lexico.l"
-{ printf("INT: %s\n", yytext); return INT; }
+#line 37 "lexico.l"
+{ /* printf("INT: %s\n", yytext); */ return INT; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 37 "lexico.l"
-{ printf("IDENTIFICADOR: %s\n", yytext); return IDENTIFICADOR; }
+#line 38 "lexico.l"
+{ /* printf("IDENTIFICADOR: %s\n", yytext); */ yylval.cadeia = (char *) strdup(yytext); return IDENTIFICADOR; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 38 "lexico.l"
-{ printf("NUMERO: %s\n", yytext); return NUMERO; }
+#line 39 "lexico.l"
+{ /* printf("NUMERO: %s\n", yytext); */ return NUMERO; }
 	YY_BREAK
 case 28:
 /* rule 28 can match eol */
 YY_RULE_SETUP
-#line 39 "lexico.l"
+#line 40 "lexico.l"
 { /* Ignora espacos em branco */ }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 40 "lexico.l"
-{ printf("UNKNOWN: %s\n", yytext); }
+#line 41 "lexico.l"
+{ /* printf("UNKNOWN: %s\n", yytext); */ }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 41 "lexico.l"
+#line 42 "lexico.l"
 ECHO;
 	YY_BREAK
-#line 914 "lex.yy.c"
+#line 915 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1915,9 +1916,9 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 41 "lexico.l"
+#line 42 "lexico.l"
 
-//{comentario}  { printf("COMENTARIO: %s\n", yytext); }
+//{comentario}  { /* printf("COMENTARIO: %s\n", yytext); */ }
 
 int yywrap() {
     return 1;

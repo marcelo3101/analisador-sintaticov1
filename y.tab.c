@@ -5,7 +5,7 @@
 #define YYBYACC 1
 #define YYMAJOR 2
 #define YYMINOR 0
-#define YYPATCH 20221106
+#define YYPATCH 20220114
 
 #define YYEMPTY        (-1)
 #define yyclearin      (yychar = YYEMPTY)
@@ -22,13 +22,18 @@
 
 #line 2 "sintatico.y"
 #include <stdio.h>
-#line 26 "y.tab.c"
-
-#if ! defined(YYSTYPE) && ! defined(YYSTYPE_IS_DECLARED)
-/* Default: YYSTYPE is the semantic value type. */
-typedef int YYSTYPE;
-# define YYSTYPE_IS_DECLARED 1
+#ifdef YYSTYPE
+#undef  YYSTYPE_IS_DECLARED
+#define YYSTYPE_IS_DECLARED 1
 #endif
+#ifndef YYSTYPE_IS_DECLARED
+#define YYSTYPE_IS_DECLARED 1
+#line 5 "sintatico.y"
+typedef union YYSTYPE {
+    char *cadeia;
+} YYSTYPE;
+#endif /* !YYSTYPE_IS_DECLARED */
+#line 37 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -473,7 +478,7 @@ static YYINT  *yylexp = 0;
 
 static YYINT  *yylexemes = 0;
 #endif /* YYBTYACC */
-#line 188 "sintatico.y"
+#line 192 "sintatico.y"
 
 int main(int argc, char **argv) {
     yyparse();
@@ -484,7 +489,7 @@ int yyerror(char *s) {
     fprintf(stderr, "Problema com a analise sintatica! %s\n", s);
     return 0;
 }
-#line 488 "y.tab.c"
+#line 493 "y.tab.c"
 
 /* For use in generated program */
 #define yydepth (int)(yystack.s_mark - yystack.s_base)
@@ -1155,51 +1160,51 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 39 "sintatico.y"
+#line 43 "sintatico.y"
 	{ printf("Programa sintaticamente correto!\n"); YYACCEPT; }
-#line 1161 "y.tab.c"
-break;
-case 6:
-#line 53 "sintatico.y"
-	{ printf("Declaração de variável\n"); }
 #line 1166 "y.tab.c"
 break;
-case 7:
-#line 54 "sintatico.y"
-	{ printf("Declaração de variável\n"); }
+case 6:
+#line 57 "sintatico.y"
+	{ printf("Declaração da variável \"%s\"\n", yystack.l_mark[-1].cadeia); }
 #line 1171 "y.tab.c"
 break;
-case 10:
-#line 63 "sintatico.y"
-	{ printf("Declaração de função\n"); }
+case 7:
+#line 58 "sintatico.y"
+	{ printf("Declaração de variável \"%s\"\n", yystack.l_mark[-4].cadeia); }
 #line 1176 "y.tab.c"
 break;
-case 15:
-#line 77 "sintatico.y"
-	{ printf("Parâmetro de função\n"); }
+case 10:
+#line 67 "sintatico.y"
+	{ printf("Declaração da função \"%s\"\n", yystack.l_mark[-4].cadeia); }
 #line 1181 "y.tab.c"
 break;
-case 16:
-#line 78 "sintatico.y"
-	{ printf("Parâmetro de função"); }
+case 15:
+#line 81 "sintatico.y"
+	{ printf("Parâmetro de função \"%s\"\n", yystack.l_mark[0].cadeia); }
 #line 1186 "y.tab.c"
 break;
-case 36:
-#line 128 "sintatico.y"
-	{ printf("Uso do identificador\n"); }
+case 16:
+#line 82 "sintatico.y"
+	{ printf("Parâmetro de função \"%s\"", yystack.l_mark[-2].cadeia); }
 #line 1191 "y.tab.c"
 break;
-case 37:
-#line 129 "sintatico.y"
-	{ printf("Uso do identificador\n"); }
+case 36:
+#line 132 "sintatico.y"
+	{ printf("Uso do identificador \"%s\"\n", yystack.l_mark[0].cadeia); }
 #line 1196 "y.tab.c"
 break;
-case 58:
-#line 174 "sintatico.y"
-	{ printf("Chamada de função\n"); }
+case 37:
+#line 133 "sintatico.y"
+	{ printf("Uso do identificador \"%s\"\n", yystack.l_mark[-3].cadeia); }
 #line 1201 "y.tab.c"
 break;
-#line 1203 "y.tab.c"
+case 58:
+#line 178 "sintatico.y"
+	{ printf("Chamada da função \"%s\"\n", yystack.l_mark[-3].cadeia); }
+#line 1206 "y.tab.c"
+break;
+#line 1208 "y.tab.c"
     default:
         break;
     }
