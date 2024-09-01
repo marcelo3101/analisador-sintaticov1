@@ -1,0 +1,12 @@
+int main(void) {
+    int resposta;
+    int fatorial;
+
+    fatorial = 5;
+    resposta = 1;
+
+    while (fatorial > 1) {
+        resposta = resposta * fatorial;
+        fatorial = fatorial - 1;
+    }
+}

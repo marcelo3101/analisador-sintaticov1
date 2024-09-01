@@ -7,7 +7,7 @@ struct simbolo {
 
 typedef struct simbolo simbolo;
 
-simbolo* tabela_de_simbolos = (simbolo *)0;// null
+simbolo* tabela_de_simbolos = NULL;// null
 simbolo* adicionar_simbolo();
 simbolo* procurar_simbolo();
 void imprimir_tabela_de_simbolos();
@@ -16,6 +16,12 @@ simbolo* adicionar_simbolo(char* nome) {
     simbolo* ptr = (simbolo*) malloc(sizeof(simbolo));
     ptr->nome = (char *) malloc(strlen(nome) + 1);
     strcpy(ptr->nome, nome);
+
+    if (strcmp(nome, "main") == 0) {
+        ptr->usada = 1; // por padrão, a função main sempre é chamada no início do código, então ela foi usada
+    } else {
+        ptr->usada = 0;
+    }
 
     ptr->prox = (struct simbolo *) tabela_de_simbolos;
     tabela_de_simbolos = ptr;
@@ -27,7 +33,7 @@ simbolo* procurar_simbolo(char* nome) {
     simbolo* atual = tabela_de_simbolos;
 
     while (atual != NULL) {
-        if (strcmp(atual->nome, nome)) {
+        if (strcmp(atual->nome, nome) == 0) {
             return atual;
         }
 
@@ -37,14 +43,15 @@ simbolo* procurar_simbolo(char* nome) {
     return NULL;
 }
 
-// TODO: implementar e imprimir no final do código
 void imprimir_tabela_de_simbolos() {
-    // Simbolo* atual = cabeca;
+    printf("\nTabela de Símbolos:\n\n");
 
-    // while (atual != NULL) {
-    //     printf("%d - \n", atual->value); // TODO:
-    //     atual = atual->prox;
-    // }
+    simbolo* atual = tabela_de_simbolos;
+
+    while (atual != NULL) {
+        printf("Nome: %s | Usada: %d\n", atual->nome, atual->usada);
+        atual = atual->prox;
+    }
 
     printf("\n");
 }

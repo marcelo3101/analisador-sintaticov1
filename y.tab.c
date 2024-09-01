@@ -5,7 +5,7 @@
 #define YYBYACC 1
 #define YYMAJOR 2
 #define YYMINOR 0
-#define YYPATCH 20220114
+#define YYPATCH 20221106
 
 #define YYEMPTY        (-1)
 #define yyclearin      (yychar = YYEMPTY)
@@ -22,18 +22,43 @@
 
 #line 2 "sintatico.y"
 #include <stdio.h>
+#include <stdlib.h> /* malloc*/
+#include <string.h> /* strcmp*/
+#include "tabela_de_simbolos.h"
+
+void declarar(char* nome) {
+    simbolo* s = procurar_simbolo(nome);
+
+    if (s != NULL) {
+        printf("ERRO: O identificador \"%s\" já está definido\n", nome);
+        exit(0);
+    }
+
+    s = adicionar_simbolo(nome);
+}
+
+void utilizar(char* nome) {
+    simbolo* s = procurar_simbolo(nome);
+
+    if (s == NULL) {
+        printf("ERRO: O identificador \"%s\" não foi definido\n", nome);
+        exit(0);
+    }
+
+    s->usada = 1;
+}
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
 #endif
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
-#line 5 "sintatico.y"
+#line 30 "sintatico.y"
 typedef union YYSTYPE {
     char *cadeia;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 37 "y.tab.c"
+#line 62 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -478,7 +503,7 @@ static YYINT  *yylexp = 0;
 
 static YYINT  *yylexemes = 0;
 #endif /* YYBTYACC */
-#line 192 "sintatico.y"
+#line 232 "sintatico.y"
 
 int main(int argc, char **argv) {
     yyparse();
@@ -489,7 +514,7 @@ int yyerror(char *s) {
     fprintf(stderr, "Problema com a analise sintatica! %s\n", s);
     return 0;
 }
-#line 493 "y.tab.c"
+#line 518 "y.tab.c"
 
 /* For use in generated program */
 #define yydepth (int)(yystack.s_mark - yystack.s_base)
@@ -1160,51 +1185,66 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 43 "sintatico.y"
-	{ printf("Programa sintaticamente correto!\n"); YYACCEPT; }
-#line 1166 "y.tab.c"
-break;
-case 6:
-#line 57 "sintatico.y"
-	{ printf("Declaração da variável \"%s\"\n", yystack.l_mark[-1].cadeia); }
-#line 1171 "y.tab.c"
-break;
-case 7:
-#line 58 "sintatico.y"
-	{ printf("Declaração de variável \"%s\"\n", yystack.l_mark[-4].cadeia); }
-#line 1176 "y.tab.c"
-break;
-case 10:
-#line 67 "sintatico.y"
-	{ printf("Declaração da função \"%s\"\n", yystack.l_mark[-4].cadeia); }
-#line 1181 "y.tab.c"
-break;
-case 15:
-#line 81 "sintatico.y"
-	{ printf("Parâmetro de função \"%s\"\n", yystack.l_mark[0].cadeia); }
-#line 1186 "y.tab.c"
-break;
-case 16:
-#line 82 "sintatico.y"
-	{ printf("Parâmetro de função \"%s\"", yystack.l_mark[-2].cadeia); }
-#line 1191 "y.tab.c"
-break;
-case 36:
-#line 132 "sintatico.y"
-	{ printf("Uso do identificador \"%s\"\n", yystack.l_mark[0].cadeia); }
-#line 1196 "y.tab.c"
-break;
-case 37:
-#line 133 "sintatico.y"
-	{ printf("Uso do identificador \"%s\"\n", yystack.l_mark[-3].cadeia); }
-#line 1201 "y.tab.c"
-break;
-case 58:
-#line 178 "sintatico.y"
-	{ printf("Chamada da função \"%s\"\n", yystack.l_mark[-3].cadeia); }
+#line 68 "sintatico.y"
+	{
+        simbolo* atual = tabela_de_simbolos;
+
+        while (atual != NULL) {
+            if (atual->usada == 0) {
+                printf("WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
+            }
+
+            atual = atual->prox;
+        }
+
+        imprimir_tabela_de_simbolos();
+
+        printf("Programa sintaticamente e semanticamente correto!\n");
+        YYACCEPT;
+    }
 #line 1206 "y.tab.c"
 break;
-#line 1208 "y.tab.c"
+case 6:
+#line 97 "sintatico.y"
+	{ declarar(yystack.l_mark[-1].cadeia); }
+#line 1211 "y.tab.c"
+break;
+case 7:
+#line 98 "sintatico.y"
+	{ declarar(yystack.l_mark[-4].cadeia); }
+#line 1216 "y.tab.c"
+break;
+case 10:
+#line 107 "sintatico.y"
+	{ declarar(yystack.l_mark[-4].cadeia); }
+#line 1221 "y.tab.c"
+break;
+case 15:
+#line 121 "sintatico.y"
+	{ utilizar(yystack.l_mark[0].cadeia); }
+#line 1226 "y.tab.c"
+break;
+case 16:
+#line 122 "sintatico.y"
+	{ utilizar(yystack.l_mark[-2].cadeia); }
+#line 1231 "y.tab.c"
+break;
+case 36:
+#line 172 "sintatico.y"
+	{ utilizar(yystack.l_mark[0].cadeia); }
+#line 1236 "y.tab.c"
+break;
+case 37:
+#line 173 "sintatico.y"
+	{ utilizar(yystack.l_mark[-3].cadeia); }
+#line 1241 "y.tab.c"
+break;
+case 58:
+#line 218 "sintatico.y"
+	{ utilizar(yystack.l_mark[-3].cadeia); }
+#line 1246 "y.tab.c"
+break;
+#line 1248 "y.tab.c"
     default:
         break;
     }

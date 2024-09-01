@@ -1,5 +1,30 @@
 %{
 #include <stdio.h>
+#include <stdlib.h> // malloc
+#include <string.h> // strcmp
+#include "tabela_de_simbolos.h"
+
+void declarar(char* nome) {
+    simbolo* s = procurar_simbolo(nome);
+
+    if (s != NULL) {
+        printf("ERRO: O identificador \"%s\" já está definido\n", nome);
+        exit(0);
+    }
+
+    s = adicionar_simbolo(nome);
+}
+
+void utilizar(char* nome) {
+    simbolo* s = procurar_simbolo(nome);
+
+    if (s == NULL) {
+        printf("ERRO: O identificador \"%s\" não foi definido\n", nome);
+        exit(0);
+    }
+
+    s->usada = 1;
+}
 %}
 
 %union {
@@ -40,7 +65,22 @@
 /* Regras */
 %%
 programa:
-    lista_declaracoes { printf("Programa sintaticamente correto!\n"); YYACCEPT; }
+    lista_declaracoes {
+        simbolo* atual = tabela_de_simbolos;
+
+        while (atual != NULL) {
+            if (atual->usada == 0) {
+                printf("WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
+            }
+
+            atual = atual->prox;
+        }
+
+        imprimir_tabela_de_simbolos();
+
+        printf("Programa sintaticamente e semanticamente correto!\n");
+        YYACCEPT;
+    }
     ;
 
 lista_declaracoes:
@@ -54,8 +94,8 @@ declaracao:
     ;
 
 declaracao_var:
-    tipo IDENTIFICADOR PONTOVIRGULA { printf("Declaração da variável \"%s\"\n", $2); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { printf("Declaração de variável \"%s\"\n", $2); }
+    tipo IDENTIFICADOR PONTOVIRGULA { declarar($2); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { declarar($2); }
     ;
 
 tipo:
@@ -64,7 +104,7 @@ tipo:
     ;
 
 declaracao_fun:
-    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { printf("Declaração da função \"%s\"\n", $2); }
+    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { declarar($2); }
     ;
 
 parametros:
@@ -78,8 +118,8 @@ lista_parametros:
     ;
 
 parametro:
-    tipo IDENTIFICADOR { printf("Parâmetro de função \"%s\"\n", $2); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { printf("Parâmetro de função \"%s\"", $2); }
+    tipo IDENTIFICADOR { utilizar($2); }
+    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { utilizar($2); }
     ;
 
 afirmacao_funcao:
@@ -129,8 +169,8 @@ expressao:
     ;
 
 variavel:
-    IDENTIFICADOR { printf("Uso do identificador \"%s\"\n", $1); }
-    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { printf("Uso do identificador \"%s\"\n", $1); }
+    IDENTIFICADOR { utilizar($1); }
+    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { utilizar($1); }
     ;
 
 expressao_simples:
@@ -175,7 +215,7 @@ fator:
     ;
 
 chamada_funcao:
-    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { printf("Chamada da função \"%s\"\n", $1); }
+    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { utilizar($1); }
     ;
 
 argumentos:
