@@ -31,7 +31,7 @@ void declarar(char* nome) {
 
     if (s != NULL) {
         printf("ERRO: O identificador \"%s\" já está definido\n", nome);
-        exit(0);
+        exit(1);
     }
 
     s = adicionar_simbolo(nome);
@@ -42,7 +42,7 @@ void utilizar(char* nome) {
 
     if (s == NULL) {
         printf("ERRO: O identificador \"%s\" não foi definido\n", nome);
-        exit(0);
+        exit(1);
     }
 
     s->usada = 1;
