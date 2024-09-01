@@ -26,8 +26,9 @@
 #define RETURN 279
 #define VOID 280
 #define INT 281
-#define IDENTIFICADOR 282
-#define NUMERO 283
+#define FLOAT 282
+#define IDENTIFICADOR 283
+#define NUMERO 284
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

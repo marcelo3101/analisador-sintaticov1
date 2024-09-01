@@ -57,6 +57,7 @@ void utilizar(char* nome) {
 %token RETURN
 %token VOID
 %token INT
+%token FLOAT
 %token <cadeia> IDENTIFICADOR
 %token NUMERO
 
@@ -101,6 +102,7 @@ declaracao_var:
 tipo:
     VOID
     | INT
+    | FLOAT
     ;
 
 declaracao_fun:
