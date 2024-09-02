@@ -1,13 +1,12 @@
 struct simbolo {
     char* nome;
     int usada;
-    // TODO: tipo
     struct simbolo* prox;
 };
 
 typedef struct simbolo simbolo;
 
-simbolo* tabela_de_simbolos = NULL;// null
+simbolo* tabela_de_simbolos = NULL; // cabeça
 simbolo* adicionar_simbolo();
 simbolo* procurar_simbolo();
 void imprimir_tabela_de_simbolos();
