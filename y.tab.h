@@ -80,8 +80,10 @@ extern int yydebug;
     VOID = 281,                    /* VOID  */
     INT = 282,                     /* INT  */
     FLOAT = 283,                   /* FLOAT  */
-    IDENTIFICADOR = 284,           /* IDENTIFICADOR  */
-    NUMERO = 285                   /* NUMERO  */
+    LEIA = 284,                    /* LEIA  */
+    ESCREVA = 285,                 /* ESCREVA  */
+    IDENTIFICADOR = 286,           /* IDENTIFICADOR  */
+    NUMERO = 287                   /* NUMERO  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -116,20 +118,22 @@ extern int yydebug;
 #define VOID 281
 #define INT 282
 #define FLOAT 283
-#define IDENTIFICADOR 284
-#define NUMERO 285
+#define LEIA 284
+#define ESCREVA 285
+#define IDENTIFICADOR 286
+#define NUMERO 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 50 "sintatico.y"
+#line 51 "sintatico.y"
 
     char *cadeia;
     int intval;
 
 
-#line 133 "y.tab.h"
+#line 137 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

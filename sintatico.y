@@ -16,7 +16,7 @@ void declarar(char* nome) {
     s = adicionar_simbolo(nome);
 }
 
-void utilizar(char* nome) {
+int utilizar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
     if (s == NULL) {
@@ -25,10 +25,11 @@ void utilizar(char* nome) {
     }
 
     s->usada = 1;
+    return s->offset;
 }
 
 // prototipos
-int add_data_offset();
+int data_location();
 int get_code_offset();
 int add_code_offset();
 
@@ -80,14 +81,17 @@ void print_code();
 %token VOID
 %token INT
 %token FLOAT
+%token LEIA
+%token ESCREVA
 %token <cadeia> IDENTIFICADOR
-%token <intval>NUMERO
+%token <intval> NUMERO
 
 %start programa
 
 /* Regras */
 %%
-programa:
+programa: {initializeProgram();}
+    
     lista_declaracoes {
         simbolo* atual = tabela_de_simbolos;
 
@@ -98,7 +102,7 @@ programa:
 
             atual = atual->prox;
         }
-
+        
         imprimir_tabela_de_simbolos();
         print_code();
         printf("Programa sintaticamente e semanticamente correto!\n");
@@ -177,6 +181,8 @@ afirmacao:
     | afirmacao_selecao
     | afirmacao_iterativa
     | afirmacao_retorno
+    | afirmacao_leia
+    | afirmacao_escreva
     ;
 
 afirmacao_expressao:
@@ -198,8 +204,18 @@ afirmacao_retorno:
     | RETURN expressao PONTOVIRGULA
     ;
 
+afirmacao_leia: // input
+    LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { utilizar($3); }
+    ;
+
+afirmacao_escreva: // print
+    ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { utilizar($3); }
+    ;
+
 expressao:
-    variavel ATRIBUICAO expressao
+    variavel ATRIBUICAO expressao {
+        
+    }
     | expressao_simples
     ;
 
@@ -226,7 +242,7 @@ comparacao:
     | MAIOR
     | MAIORIGUAL
     | IGUAL {
-        printf("IGUAL\n");
+        //printf("IGUAL\n");
         ari_op(SUB);
         pop();
         copy(t1, t2);
@@ -252,11 +268,9 @@ operacao_aditiva:
     ;
 
 termo:
-    termo operacao_multiplicativa fator {
-       
-          
+    termo operacao_multiplicativa fator {   
     }
-    | fator
+    | fator 
     ;
 
 operacao_multiplicativa:
@@ -268,9 +282,11 @@ operacao_multiplicativa:
 
 fator:
     PARENTESESQUERDO expressao PARENTESEDIREITO
-    | variavel
+    | variavel 
     | chamada_funcao
-    | NUMERO
+    | NUMERO {
+        printf("NUMERO: %d\n", $1);
+    }
     ;
 
 chamada_funcao:
@@ -295,6 +311,6 @@ int main(int argc, char **argv) {
 }
 
 int yyerror(char *s) {
-    fprintf(stderr, "Problema com a analise sintatica! %s\n", s);
+    fprintf(stderr, "Problema com a analise sintática! %s\n", s);
     return 0;
 }

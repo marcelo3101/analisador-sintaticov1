@@ -1,6 +1,10 @@
+
+int data_location();
+
 struct simbolo {
     char* nome;
     int usada;
+    int offset;
     struct simbolo* prox;
 };
 
@@ -14,6 +18,7 @@ void imprimir_tabela_de_simbolos();
 simbolo* adicionar_simbolo(char* nome) {
     simbolo* ptr = (simbolo*) malloc(sizeof(simbolo));
     ptr->nome = (char *) malloc(strlen(nome) + 1);
+    ptr->offset = data_location();
     strcpy(ptr->nome, nome);
 
     if (strcmp(nome, "main") == 0) {
@@ -21,6 +26,7 @@ simbolo* adicionar_simbolo(char* nome) {
     } else {
         ptr->usada = 0;
     }
+
 
     ptr->prox = (struct simbolo *) tabela_de_simbolos;
     tabela_de_simbolos = ptr;
@@ -33,7 +39,7 @@ simbolo* procurar_simbolo(char* nome) {
 
     while (atual != NULL) {
         if (strcmp(atual->nome, nome) == 0) {
-            return atual;
+            return atual; // retorna o ponteiro para o símbolo
         }
 
         atual = atual->prox;

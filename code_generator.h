@@ -3,7 +3,7 @@
 enum code_ops
 {
   HALT,
-  IN_OP,
+  IN_OP, // TODO
   OUT,
   ADD,
   SUB,
@@ -65,12 +65,10 @@ enum Regs
   pc,
 };
 
-
-
 int data_offset = 0;
 int code_offset = 0;
 
-int add_data_offset()
+int data_location()
 {
   return data_offset++;
 }
@@ -127,7 +125,6 @@ void copy(enum Regs from, enum Regs to)
 // zerar a pilha
 void initializeProgram()
 {
-  
   gen_code(LD, sp, 0, t1);
   gen_code(ST, t1, 0, t1); 
 }

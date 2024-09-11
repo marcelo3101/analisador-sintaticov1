@@ -5,7 +5,7 @@
 %}
 
 id          [a-zA-Z][a-zA-Z0-9]*
-numero      [-+]?[0-9]+(\.[0-9]*)?|(\.[0-9]+)
+numero      [-+]?[0-9]+(\.[0-9]*)?|(\.[0-9]+) 
 comentario  "/*"([^*]|(\*+[^*/]))*\*+/
 whitespace  [ \t\n]+
 
@@ -29,6 +29,8 @@ whitespace  [ \t\n]+
 ">="          { /* printf("MAIORIGUAL: %s\n", yytext); */ return MAIORIGUAL; }
 "=="          { /* printf("IGUAL: %s\n", yytext); */ return IGUAL; }
 "!="          { /* printf("DIFERENTE: %s\n", yytext); */ return DIFERENTE; }
+"leia"        { /* printf("LEIA: %s\n", yytext); */ return LEIA; }
+"escreva"     { /* printf("ESCREVA: %s\n", yytext); */ return ESCREVA; }
 "if"          { /* printf("IF: %s\n", yytext); */ return IF; }
 "else"        { /* printf("ELSE: %s\n", yytext); */ return ELSE; }
 "while"       { /* printf("WHILE: %s\n", yytext); */ return WHILE; }  
@@ -37,7 +39,7 @@ whitespace  [ \t\n]+
 "int"         { /* printf("INT: %s\n", yytext); */ return INT; }
 "float"         { /* printf("FLOAT: %s\n", yytext); */ return FLOAT; }
 {id}          { /* printf("IDENTIFICADOR: %s\n", yytext); */ yylval.cadeia = (char *) strdup(yytext); return IDENTIFICADOR; }
-{numero}      { /* printf("NUMERO: %s\n", yytext); */ return NUMERO; }
+{numero}      { yylval.intval = atoi(yytext); return NUMERO; } /* printf("NUMERO: %s\n", yytext); */ 
 {whitespace}  { /* Ignora espacos em branco */ }
 .             { /* printf("UNKNOWN: %s\n", yytext); */ }
 %%
