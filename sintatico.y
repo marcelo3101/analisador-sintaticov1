@@ -3,6 +3,7 @@
 #include <stdlib.h> // malloc
 #include <string.h> // strcmp
 #include "tabela_de_simbolos.h"
+#include "code_generator.h"
 
 void declarar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
@@ -25,10 +26,31 @@ void utilizar(char* nome) {
 
     s->usada = 1;
 }
+
+// prototipos
+int add_data_offset();
+int get_code_offset();
+int add_code_offset();
+
+void gen_code(enum code_ops operation, int arg0, int arg1, int arg2);
+void make_code(int addr, enum code_ops operation, int arg0, int arg1, int arg2);
+
+void pop();
+void push();
+void copy(enum Regs from, enum Regs to);
+
+void initializeProgram();
+void ari_op(enum code_ops op);
+
+void print_code();
+
+
 %}
 
 %union {
     char *cadeia;
+    int intval;
+
 }
 
 /* Definicoes de tokens */
@@ -59,7 +81,7 @@ void utilizar(char* nome) {
 %token INT
 %token FLOAT
 %token <cadeia> IDENTIFICADOR
-%token NUMERO
+%token <intval>NUMERO
 
 %start programa
 
@@ -78,7 +100,7 @@ programa:
         }
 
         imprimir_tabela_de_simbolos();
-
+        print_code();
         printf("Programa sintaticamente e semanticamente correto!\n");
         YYACCEPT;
     }
@@ -95,8 +117,14 @@ declaracao:
     ;
 
 declaracao_var:
-    tipo IDENTIFICADOR PONTOVIRGULA { declarar($2); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { declarar($2); }
+    tipo IDENTIFICADOR PONTOVIRGULA { 
+        
+        declarar($2); 
+    }
+    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { 
+        
+        declarar($2); 
+    }
     ;
 
 tipo:
@@ -120,8 +148,13 @@ lista_parametros:
     ;
 
 parametro:
-    tipo IDENTIFICADOR { utilizar($2); }
-    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { utilizar($2); }
+    tipo IDENTIFICADOR { 
+        utilizar($2); 
+    }
+    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { 
+
+        utilizar($2); 
+    }
     ;
 
 afirmacao_funcao:
@@ -171,41 +204,65 @@ expressao:
     ;
 
 variavel:
-    IDENTIFICADOR { utilizar($1); }
+    IDENTIFICADOR { 
+        utilizar($1); 
+       
+    }
     | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { utilizar($1); }
     ;
 
 expressao_simples:
-    expressao_matematica comparacao expressao_matematica
+    expressao_matematica comparacao expressao_matematica {
+        
+    }
     | expressao_matematica
     ;
 
 comparacao:
-    MENOR
+    MENOR {
+       
+    }
     | MENORIGUAL
     | MAIOR
     | MAIORIGUAL
-    | IGUAL
+    | IGUAL {
+        printf("IGUAL\n");
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JGE, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
+    }
     | DIFERENTE
     ;
 
 expressao_matematica:
-    expressao_matematica operacao_aditiva termo
+    expressao_matematica operacao_aditiva termo {
+        
+        
+    } 
     | termo
     ;
 
 operacao_aditiva:
-    ADICAO
+    ADICAO 
     | SUBTRACAO
     ;
 
 termo:
-    termo operacao_multiplicativa fator
+    termo operacao_multiplicativa fator {
+       
+          
+    }
     | fator
     ;
 
 operacao_multiplicativa:
-    MULTIPLICACAO
+    MULTIPLICACAO {
+        printf("MULTIPLICACAO\n");
+    }
     | DIVISAO
     ;
 
