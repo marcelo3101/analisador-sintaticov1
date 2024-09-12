@@ -122,8 +122,10 @@ declaracao:
 
 declaracao_var:
     tipo IDENTIFICADOR PONTOVIRGULA { 
-        
+        //printf("declara %s\n", $2);
         declarar($2); 
+
+
     }
     | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { 
         
@@ -186,7 +188,9 @@ afirmacao:
     ;
 
 afirmacao_expressao:
-    expressao PONTOVIRGULA
+    expressao PONTOVIRGULA {
+        
+    }
     | PONTOVIRGULA
     ;
 
@@ -214,15 +218,21 @@ afirmacao_escreva: // print
 
 expressao:
     variavel ATRIBUICAO expressao {
+        //printf("ATRIBUICAO\n");
+       
+    }
+    | expressao_simples {
         
     }
-    | expressao_simples
     ;
 
 variavel:
     IDENTIFICADOR { 
-        utilizar($1); 
-       
+        //printf("aqui %s \n", $1);
+        int address = utilizar( $1 );
+        gen_code(LDC, t1, address, 0);
+        gen_code(LD, t1, 0, t1);
+        push();
     }
     | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { utilizar($1); }
     ;
@@ -257,13 +267,15 @@ comparacao:
 expressao_matematica:
     expressao_matematica operacao_aditiva termo {
         
-        
-    } 
+    }
     | termo
     ;
 
 operacao_aditiva:
-    ADICAO 
+    ADICAO {
+        //printf("ADICAO\n");
+        ari_op(ADD);
+    }
     | SUBTRACAO
     ;
 
@@ -285,7 +297,9 @@ fator:
     | variavel 
     | chamada_funcao
     | NUMERO {
-        printf("NUMERO: %d\n", $1);
+        //printf("NUMERO: %d\n", $1);
+        gen_code( LDC, t1, $1, 0);
+        push();
     }
     ;
 
@@ -311,6 +325,6 @@ int main(int argc, char **argv) {
 }
 
 int yyerror(char *s) {
-    fprintf(stderr, "Problema com a analise sintática! %s\n", s);
+    fprintf(stderr, "Problema com a análise sintática! %s\n", s);
     return 0;
 }
