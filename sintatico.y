@@ -260,9 +260,7 @@ variavel:
     ;
 
 expressao_simples:
-    expressao_matematica comparacao expressao_matematica {
-        
-    }
+    expressao_matematica comparacao expressao_matematica 
     | expressao_matematica
     ;
 
@@ -336,7 +334,7 @@ operacao_aditiva:
         //printf("ADICAO\n");
         ari_op(ADD);
     }
-    | SUBTRACAO
+    | SUBTRACAO { ari_op(SUB); }
     ;
 
 termo:
@@ -348,8 +346,9 @@ termo:
 operacao_multiplicativa:
     MULTIPLICACAO {
         //printf("MULTIPLICACAO\n");
+        ari_op(MUL);
     }
-    | DIVISAO
+    | DIVISAO {ari_op(DIV);}
     ;
 
 fator:
