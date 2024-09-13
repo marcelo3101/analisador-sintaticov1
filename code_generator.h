@@ -3,7 +3,7 @@
 enum code_ops
 {
   HALT,
-  IN_OP, // TODO
+  IN, // TODO
   OUT,
   ADD,
   SUB,
