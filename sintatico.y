@@ -226,7 +226,7 @@ afirmacao_escreva: // print. TODO: checar como fucniona para atribuição etc.
     // Como só tem int no Tiny Machiine pelo que parece, daí não iremos printar float nem string
     ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
         utilizar($3); // necessário?
-        pop_stack();
+        pop();
         gen_code(OUT, t1, 0, 0); 
     }
     ;
@@ -237,7 +237,7 @@ expressao:
         int address = utilizar($1);
         pop();
         gen_code(LDC, t2, address, 0);
-        gen_code(ST, t1, 0, t2);
+        gen_code(ST, t1, 0, t2); // store
     }
     | expressao_simples {
         //printf("aqui dsds \n");
@@ -249,7 +249,7 @@ variavel:
         //printf("aqui %s \n", $1);
         int address = utilizar($1);
         gen_code(LDC, t1, address, 0);
-        gen_code(LD, t1, 0, t1);
+        gen_code(LD, t1, 0, t1); // load
         push();
         $$ = $1; // Pass the identifier name up the parse tree
     }

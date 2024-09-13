@@ -718,9 +718,9 @@ static const yytype_int16 yyrline[] =
      141,   142,   143,   147,   151,   152,   156,   157,   161,   164,
      171,   175,   176,   180,   181,   185,   186,   187,   188,   189,
      190,   191,   195,   198,   202,   203,   207,   211,   212,   216,
-     220,   224,   231,   237,   245,   252,   255,   259,   262,   263,
-     264,   265,   275,   279,   282,   286,   290,   294,   296,   300,
-     303,   307,   308,   309,   310,   318,   322,   323,   327,   328
+     227,   235,   242,   248,   256,   263,   266,   270,   273,   274,
+     275,   276,   286,   290,   293,   297,   301,   305,   307,   311,
+     314,   318,   319,   320,   321,   329,   333,   334,   338,   339
 };
 #endif
 
@@ -1444,18 +1444,28 @@ yyreduce:
 
   case 39: /* afirmacao_leia: LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA  */
 #line 216 "sintatico.y"
-                                                                      { utilizar((yyvsp[-2].cadeia)); }
-#line 1449 "y.tab.c"
-    break;
-
-  case 40: /* afirmacao_escreva: ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA  */
-#line 220 "sintatico.y"
-                                                                         { utilizar((yyvsp[-2].cadeia)); }
+                                                                      { 
+        //printf("leia %s\n", $3);
+        gen_code(IN, t1, 0, 0);
+        int address = utilizar((yyvsp[-2].cadeia)); 
+        gen_code(LDC, t2, address, 0);
+        gen_code(ST, t1, 0, t2); 
+    }
 #line 1455 "y.tab.c"
     break;
 
+  case 40: /* afirmacao_escreva: ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA  */
+#line 227 "sintatico.y"
+                                                                         { 
+        utilizar((yyvsp[-2].cadeia)); // necessário?
+        pop();
+        gen_code(OUT, t1, 0, 0); 
+    }
+#line 1465 "y.tab.c"
+    break;
+
   case 41: /* expressao: variavel ATRIBUICAO expressao  */
-#line 224 "sintatico.y"
+#line 235 "sintatico.y"
                                   {
         //printf("aqui %s\n", $1);
         int address = utilizar((yyvsp[-2].cadeia));
@@ -1463,120 +1473,120 @@ yyreduce:
         gen_code(LDC, t2, address, 0);
         gen_code(ST, t1, 0, t2);
     }
-#line 1467 "y.tab.c"
+#line 1477 "y.tab.c"
     break;
 
   case 42: /* expressao: expressao_simples  */
-#line 231 "sintatico.y"
+#line 242 "sintatico.y"
                         {
         //printf("aqui dsds \n");
     }
-#line 1475 "y.tab.c"
+#line 1485 "y.tab.c"
     break;
 
   case 43: /* variavel: IDENTIFICADOR  */
-#line 237 "sintatico.y"
+#line 248 "sintatico.y"
                   { 
         //printf("aqui %s \n", $1);
-        /* int address = utilizar($1);
+        int address = utilizar((yyvsp[0].cadeia));
         gen_code(LDC, t1, address, 0);
         gen_code(LD, t1, 0, t1);
         push();
-        $$ = $1; // Pass the identifier name up the parse tree */
+        (yyval.cadeia) = (yyvsp[0].cadeia); // Pass the identifier name up the parse tree
     }
-#line 1488 "y.tab.c"
+#line 1498 "y.tab.c"
     break;
 
   case 44: /* variavel: IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO  */
-#line 245 "sintatico.y"
+#line 256 "sintatico.y"
                                                               { 
         utilizar((yyvsp[-3].cadeia)); 
         
     }
-#line 1497 "y.tab.c"
+#line 1507 "y.tab.c"
     break;
 
   case 45: /* expressao_simples: expressao_matematica comparacao expressao_matematica  */
-#line 252 "sintatico.y"
+#line 263 "sintatico.y"
                                                          {
         
     }
-#line 1505 "y.tab.c"
+#line 1515 "y.tab.c"
     break;
 
   case 47: /* comparacao: MENOR  */
-#line 259 "sintatico.y"
+#line 270 "sintatico.y"
           {
        
     }
-#line 1513 "y.tab.c"
+#line 1523 "y.tab.c"
     break;
 
   case 51: /* comparacao: IGUAL  */
-#line 265 "sintatico.y"
+#line 276 "sintatico.y"
             {
         //printf("IGUAL\n");
-        /* ari_op(SUB);
+        ari_op(SUB);
         pop();
         copy(t1, t2);
         gen_code(LDC, t1, 0, 0); 
         gen_code(JGE, t2, 1, pc); 
         gen_code(LDC, t1, 1, 0); 
-        push(); */
+        push();
     }
-#line 1528 "y.tab.c"
+#line 1538 "y.tab.c"
     break;
 
   case 53: /* expressao_matematica: expressao_matematica operacao_aditiva termo  */
-#line 279 "sintatico.y"
+#line 290 "sintatico.y"
                                                 {
         
     }
-#line 1536 "y.tab.c"
+#line 1546 "y.tab.c"
     break;
 
   case 55: /* operacao_aditiva: ADICAO  */
-#line 286 "sintatico.y"
+#line 297 "sintatico.y"
            {
         //printf("ADICAO\n");
-        //ari_op(ADD);
+        ari_op(ADD);
     }
-#line 1545 "y.tab.c"
+#line 1555 "y.tab.c"
     break;
 
   case 57: /* termo: termo operacao_multiplicativa fator  */
-#line 294 "sintatico.y"
+#line 305 "sintatico.y"
                                         {   
     }
-#line 1552 "y.tab.c"
+#line 1562 "y.tab.c"
     break;
 
   case 59: /* operacao_multiplicativa: MULTIPLICACAO  */
-#line 300 "sintatico.y"
+#line 311 "sintatico.y"
                   {
         //printf("MULTIPLICACAO\n");
-    }
-#line 1560 "y.tab.c"
-    break;
-
-  case 64: /* fator: NUMERO  */
-#line 310 "sintatico.y"
-             {
-        //printf("NUMERO: %d\n", $1);
-        /* gen_code( LDC, t1, $1, 0);
-        push(); */
     }
 #line 1570 "y.tab.c"
     break;
 
+  case 64: /* fator: NUMERO  */
+#line 321 "sintatico.y"
+             {
+        //printf("NUMERO: %d\n", $1);
+        gen_code( LDC, t1, (yyvsp[0].intval), 0);
+        push();
+    }
+#line 1580 "y.tab.c"
+    break;
+
   case 65: /* chamada_funcao: IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO  */
-#line 318 "sintatico.y"
+#line 329 "sintatico.y"
                                                                { utilizar((yyvsp[-3].cadeia)); }
-#line 1576 "y.tab.c"
+#line 1586 "y.tab.c"
     break;
 
 
-#line 1580 "y.tab.c"
+#line 1590 "y.tab.c"
 
       default: break;
     }
@@ -1769,7 +1779,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 331 "sintatico.y"
+#line 342 "sintatico.y"
 
 
 int main(int argc, char **argv) {
