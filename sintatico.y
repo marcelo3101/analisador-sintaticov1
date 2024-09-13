@@ -86,6 +86,8 @@ void print_code();
 %token <cadeia> IDENTIFICADOR
 %token <intval> NUMERO
 
+%type <cadeia> variavel
+
 %start programa
 
 /* Regras */
@@ -210,22 +212,32 @@ afirmacao_retorno:
     | RETURN expressao PONTOVIRGULA 
     ;
 
-afirmacao_leia: // input
-    LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { utilizar($3); }
+afirmacao_leia: // input TODO: checar como fucniona para atribuição etc 
+    LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
+        //printf("leia %s\n", $3);
+        gen_code(IN, t1, 0, 0);
+        int address = utilizar($3); 
+        gen_code(LDC, t2, address, 0);
+        gen_code(ST, t1, 0, t2); 
+    }
     ;
 
-afirmacao_escreva: // print
-    ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { utilizar($3); }
+afirmacao_escreva: // print. TODO: checar como fucniona para atribuição etc. 
+    // Como só tem int no Tiny Machiine pelo que parece, daí não iremos printar float nem string
+    ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
+        utilizar($3); // necessário?
+        pop_stack();
+        gen_code(OUT, t1, 0, 0); 
+    }
     ;
 
 expressao:
     variavel ATRIBUICAO expressao {
-        //printf("ATRIBUICAO\n");
-        
-    }
-    | IDENTIFICADOR ATRIBUICAO expressao {
-        printf("%s\n", $1);
-        
+        //printf("aqui %s\n", $1);
+        int address = utilizar($1);
+        pop();
+        gen_code(LDC, t2, address, 0);
+        gen_code(ST, t1, 0, t2);
     }
     | expressao_simples {
         //printf("aqui dsds \n");
@@ -235,12 +247,16 @@ expressao:
 variavel:
     IDENTIFICADOR { 
         //printf("aqui %s \n", $1);
-        int address = utilizar( $1 );
+        int address = utilizar($1);
         gen_code(LDC, t1, address, 0);
         gen_code(LD, t1, 0, t1);
         push();
+        $$ = $1; // Pass the identifier name up the parse tree
     }
-    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { utilizar($1); }
+    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { 
+        utilizar($1); 
+        
+    }
     ;
 
 expressao_simples:
@@ -300,7 +316,7 @@ operacao_multiplicativa:
 
 fator:
     PARENTESESQUERDO expressao PARENTESEDIREITO
-    | variavel 
+    | variavel // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima
     | chamada_funcao
     | NUMERO {
         //printf("NUMERO: %d\n", $1);
