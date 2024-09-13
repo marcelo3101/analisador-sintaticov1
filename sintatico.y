@@ -90,6 +90,11 @@ void print_code();
 
 %start programa
 
+%left '-' '+'
+%left '*' '/'
+%left UMINUS
+
+
 /* Regras */
 %%
 programa: {initializeProgram();}
@@ -359,6 +364,12 @@ fator:
         //printf("NUMERO: %d\n", $1);
         gen_code( LDC, t1, $1, 0);
         push();
+    }
+    | '-' NUMERO %prec UMINUS { // números negativos
+        //printf("NUMERO: %d\n", $2);
+        gen_code(LDC, t1,-1,0);
+        push();
+        ari_op(MUL);
     }
     ;
 
