@@ -83,6 +83,7 @@ void print_code();
 %token FLOAT
 %token LEIA
 %token ESCREVA
+%token MAIN
 %token <cadeia> IDENTIFICADOR
 %token <intval> NUMERO
 
@@ -97,9 +98,9 @@ void print_code();
 
 /* Regras */
 %%
-programa: {initializeProgram();}
-    
-    lista_declaracoes {
+programa: INT MAIN PARENTESESQUERDO PARENTESEDIREITO {initializeProgram();}
+
+    afirmacao_funcao {
         simbolo* atual = tabela_de_simbolos;
 
         while (atual != NULL) {
@@ -230,7 +231,7 @@ afirmacao_leia: // input TODO: checar como fucniona para atribuição etc
 afirmacao_escreva: // print. TODO: checar como fucniona para atribuição etc. 
     // Como só tem int no Tiny Machiine pelo que parece, daí não iremos printar float nem string
     ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
-        utilizar($3); // necessário?
+        // utilizar($3); // necessário?
         pop();
         gen_code(OUT, t1, 0, 0); 
     }
@@ -251,7 +252,7 @@ expressao:
 
 variavel:
     IDENTIFICADOR { 
-        //printf("aqui %s \n", $1);
+        printf("aqui %s \n", $1);
         int address = utilizar($1);
         gen_code(LDC, t1, address, 0);
         gen_code(LD, t1, 0, t1); // load
