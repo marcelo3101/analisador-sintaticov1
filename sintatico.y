@@ -268,13 +268,33 @@ expressao_simples:
 
 comparacao:
     MENOR {
-       
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JLT, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
     }
-    | MENORIGUAL
-    | MAIOR
-    | MAIORIGUAL
-    | IGUAL {
-        //printf("IGUAL\n");
+    | MENORIGUAL{
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JLE, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
+    }
+    | MAIOR {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JGT, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
+    }
+    | MAIORIGUAL {
         ari_op(SUB);
         pop();
         copy(t1, t2);
@@ -283,7 +303,25 @@ comparacao:
         gen_code(LDC, t1, 1, 0); 
         push();
     }
-    | DIFERENTE
+    | IGUAL {
+        //printf("IGUAL\n");
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JEQ, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
+    }
+    | DIFERENTE {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 0, 0); 
+        gen_code(JNE, t2, 1, pc); 
+        gen_code(LDC, t1, 1, 0); 
+        push();
+    }
     ;
 
 expressao_matematica:
