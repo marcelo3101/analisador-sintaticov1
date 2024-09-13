@@ -101,6 +101,7 @@ programa: {initializeProgram();}
             }
 
             atual = atual->prox;
+            
         }
         
         imprimir_tabela_de_simbolos();
@@ -111,18 +112,19 @@ programa: {initializeProgram();}
     ;
 
 lista_declaracoes:
-    lista_declaracoes declaracao
-    | declaracao
+    lista_declaracoes declaracao 
+    | declaracao 
     ;
 
 declaracao:
-    declaracao_var
-    | declaracao_fun
+    declaracao_var  
+    | declaracao_fun 
     ;
 
 declaracao_var:
     tipo IDENTIFICADOR PONTOVIRGULA { 
         //printf("declara %s\n", $2);
+        
         declarar($2); 
 
 
@@ -189,7 +191,7 @@ afirmacao:
 
 afirmacao_expressao:
     expressao PONTOVIRGULA {
-        
+        //printf("afirm\n");
     }
     | PONTOVIRGULA
     ;
@@ -205,7 +207,7 @@ afirmacao_iterativa:
 
 afirmacao_retorno:
     RETURN PONTOVIRGULA
-    | RETURN expressao PONTOVIRGULA
+    | RETURN expressao PONTOVIRGULA 
     ;
 
 afirmacao_leia: // input
@@ -219,10 +221,14 @@ afirmacao_escreva: // print
 expressao:
     variavel ATRIBUICAO expressao {
         //printf("ATRIBUICAO\n");
-       
+        
+    }
+    | IDENTIFICADOR ATRIBUICAO expressao {
+        printf("%s\n", $1);
+        
     }
     | expressao_simples {
-        
+        //printf("aqui dsds \n");
     }
     ;
 
@@ -287,7 +293,7 @@ termo:
 
 operacao_multiplicativa:
     MULTIPLICACAO {
-        printf("MULTIPLICACAO\n");
+        //printf("MULTIPLICACAO\n");
     }
     | DIVISAO
     ;
