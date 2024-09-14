@@ -101,18 +101,15 @@ void make_code(int addr, enum code_ops operation, int arg0, int arg1, int arg2)
   code[addr].arg[2] = arg2;
 }
 
-// pop stack
-void pop()
-{
+// pop stack and put value in t1
+void pop() {
   gen_code(LD, t1, 0, sp); 
   gen_code(LDA, sp, 1, sp); 
-  
 }
 
-// push stack
-void push()
-{
-  gen_code(LDA, sp, -1, sp); 
+// push t1 to stack
+void push() {
+  gen_code(LDA, sp, -1, sp); // sp aponta pra ultima posicao que tem alguem
   gen_code(ST, t1, 0, sp); 
 }
 
@@ -123,10 +120,14 @@ void copy(enum Regs from, enum Regs to)
 }
 
 // zerar a pilha
-void initializeProgram()
-{
-  gen_code(LD, sp, 0, t1);
-  gen_code(ST, t1, 0, t1); 
+void initializeProgram() {
+
+  // sp = dMem[0] (t1 comeca com 0)
+  gen_code(LD, sp, t1, 0);
+  gen_code(LDC, t1, data_offset, 0);
+  gen_code(SUB, sp, sp, t1);
+
+  // gen_code(LDC, sp, data_offset, 0);
 }
 
 // arithmetic operation

@@ -95,12 +95,15 @@ void print_code();
 %left '*' '/'
 %left UMINUS
 
-
 /* Regras */
 %%
-programa: INT MAIN PARENTESESQUERDO PARENTESEDIREITO {initializeProgram();}
+programa: INT MAIN PARENTESESQUERDO VOID PARENTESEDIREITO CHAVESQUERDA
 
-    afirmacao_funcao {
+    lista_declaracoes
+    { initializeProgram(); }
+    lista_afirmacoes {
+        gen_code(HALT, 0, 0, 0);
+
         simbolo* atual = tabela_de_simbolos;
 
         while (atual != NULL) {
@@ -110,35 +113,25 @@ programa: INT MAIN PARENTESESQUERDO PARENTESEDIREITO {initializeProgram();}
 
             atual = atual->prox;
             
-        }
-        
-        imprimir_tabela_de_simbolos();
+        } 
+
+        // imprimir_tabela_de_simbolos();
         print_code();
-        printf("Programa sintaticamente e semanticamente correto!\n");
+        // printf("Programa sintaticamente e semanticamente correto!\n");
         YYACCEPT;
     }
+    
+    CHAVEDIREITA
     ;
 
 lista_declaracoes:
-    lista_declaracoes declaracao 
-    | declaracao 
-    ;
-
-declaracao:
-    declaracao_var  
-    | declaracao_fun 
+    lista_declaracoes declaracao_var 
+    | declaracao_var 
     ;
 
 declaracao_var:
     tipo IDENTIFICADOR PONTOVIRGULA { 
         //printf("declara %s\n", $2);
-        
-        declarar($2); 
-
-
-    }
-    | tipo IDENTIFICADOR COLCHETESQUERDO NUMERO COLCHETEDIREITO PONTOVIRGULA { 
-        
         declarar($2); 
     }
     ;
@@ -146,40 +139,6 @@ declaracao_var:
 tipo:
     VOID
     | INT
-    | FLOAT
-    ;
-
-declaracao_fun:
-    tipo IDENTIFICADOR PARENTESESQUERDO parametros PARENTESEDIREITO afirmacao_funcao { declarar($2); }
-    ;
-
-parametros:
-    lista_parametros
-    | VOID
-    ;
-
-lista_parametros:
-    lista_parametros VIRGULA parametro
-    | parametro
-    ;
-
-parametro:
-    tipo IDENTIFICADOR { 
-        utilizar($2); 
-    }
-    | tipo IDENTIFICADOR COLCHETESQUERDO COLCHETEDIREITO { 
-
-        utilizar($2); 
-    }
-    ;
-
-afirmacao_funcao:
-    CHAVESQUERDA declaracoes_locais lista_afirmacoes CHAVEDIREITA
-    ;
-
-declaracoes_locais:
-    declaracoes_locais declaracao_var
-    | /* empty */
     ;
 
 lista_afirmacoes:
@@ -189,7 +148,6 @@ lista_afirmacoes:
 
 afirmacao:
     afirmacao_expressao
-    | afirmacao_funcao
     | afirmacao_selecao
     | afirmacao_iterativa
     | afirmacao_retorno
@@ -218,50 +176,49 @@ afirmacao_retorno:
     | RETURN expressao PONTOVIRGULA 
     ;
 
-afirmacao_leia: // input TODO: checar como fucniona para atribuição etc 
+afirmacao_leia:
     LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
         //printf("leia %s\n", $3);
         gen_code(IN, t1, 0, 0);
         int address = utilizar($3); 
-        gen_code(LDC, t2, address, 0);
+        gen_code(LDC, t2, address, sp);
         gen_code(ST, t1, 0, t2); 
     }
     ;
 
-afirmacao_escreva: // print. TODO: checar como fucniona para atribuição etc. 
-    // Como só tem int no Tiny Machiine pelo que parece, daí não iremos printar float nem string
+afirmacao_escreva:
     ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
-        // utilizar($3); // necessário?
-        pop();
-        gen_code(OUT, t1, 0, 0); 
+        int offset = utilizar($3);
+
+        gen_code(LDC, t1, 0, 0); // t1 = 0
+        gen_code(LD, t1, 0, t1); // t1 = dMem[0 + t1] = dMem[0] = 1023
+        gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]
+        gen_code(OUT, t1, 0, 0);
     }
     ;
 
 expressao:
-    variavel ATRIBUICAO expressao {
-        //printf("aqui %s\n", $1);
-        int address = utilizar($1);
-        pop();
-        gen_code(LDC, t2, address, 0);
-        gen_code(ST, t1, 0, t2); // store
+    IDENTIFICADOR ATRIBUICAO expressao {
+        int offset = utilizar($1);
+
+        pop(); // t1 = expressao
+        
+        gen_code(LDC, t2, 0, 0); // t2 = 0
+        gen_code(LD, t2, 0, t2); // t2 = dMem[0] = 1023
+        gen_code(ST, t1, -offset, t2); // dMem[-offset + t2] = reg[t1]
     }
-    | expressao_simples {
-        //printf("aqui dsds \n");
-    }
+    | expressao_simples
     ;
 
 variavel:
     IDENTIFICADOR { 
-        printf("aqui %s \n", $1);
-        int address = utilizar($1);
-        gen_code(LDC, t1, address, 0);
-        gen_code(LD, t1, 0, t1); // load
-        push();
-        $$ = $1; // Pass the identifier name up the parse tree
-    }
-    | IDENTIFICADOR COLCHETESQUERDO expressao COLCHETEDIREITO { 
-        utilizar($1); 
+        // int address = utilizar($1);
+
+        // gen_code(LDC, t1, address, sp);
+        // gen_code(LD, t1, 0, t1);
+        // push();
         
+        // $$ = $1; // Pass the identifier name up the parse tree
     }
     ;
 
@@ -329,9 +286,7 @@ comparacao:
     ;
 
 expressao_matematica:
-    expressao_matematica operacao_aditiva termo {
-        
-    }
+    expressao_matematica operacao_aditiva termo
     | termo
     ;
 
@@ -344,8 +299,7 @@ operacao_aditiva:
     ;
 
 termo:
-    termo operacao_multiplicativa fator {   
-    }
+    termo operacao_multiplicativa fator
     | fator 
     ;
 
@@ -359,23 +313,16 @@ operacao_multiplicativa:
 
 fator:
     PARENTESESQUERDO expressao PARENTESEDIREITO
-    | variavel // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima
-    | chamada_funcao
+    | variavel { /* // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima */ }
     | NUMERO {
-        //printf("NUMERO: %d\n", $1);
-        gen_code( LDC, t1, $1, 0);
+        gen_code(LDC, t1, $1, 0);
         push();
     }
     | '-' NUMERO %prec UMINUS { // números negativos
-        //printf("NUMERO: %d\n", $2);
-        gen_code(LDC, t1,-1,0);
+        gen_code(LDC, t1, -1, 0);
         push();
         ari_op(MUL);
     }
-    ;
-
-chamada_funcao:
-    IDENTIFICADOR PARENTESESQUERDO argumentos PARENTESEDIREITO { utilizar($1); }
     ;
 
 argumentos:
