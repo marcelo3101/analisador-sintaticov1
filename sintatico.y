@@ -45,7 +45,7 @@ void ari_op(enum code_ops op);
 
 void print_code();
 
-int start_if, start_else;
+int start_if, start_else, start_comp, start_while, end_while;
 
 %}
 
@@ -182,7 +182,6 @@ afirmacao_selecao:
         // jump pro inicio do else se a condicao for falsa
         make_code(start_if - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
         make_code(start_if - 3, LDA, sp, 1, sp); // stack.pop() (sp = sp + 1)
-
         make_code(start_if - 2, LDC, t2, start_else, 0); // t2 = start_else
         make_code(start_if - 1, JEQ, t1, 0, t2); // pc = start_else (se a condicao for falsa)
 
@@ -195,7 +194,24 @@ afirmacao_selecao:
     ;
 
 afirmacao_iterativa:
-    WHILE PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao
+    WHILE PARENTESESQUERDO {
+        start_comp = get_code_offset(); // inicio da comparacao do while
+    } expressao {
+        add_code_offset(4);
+        start_while = get_code_offset(); // inicio do meu codigo dentro do while
+    } PARENTESEDIREITO CHAVESQUERDA lista_afirmacoes {
+        // jump incondicional pro inicio do while
+        gen_code(LDC, t1, start_comp, 0);
+        gen_code(LDC, t2, 0, 0);
+        gen_code(JEQ, t2, 0, t1);
+
+        end_while = get_code_offset();
+
+        make_code(start_while - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
+        make_code(start_while - 3, LDA, sp, 1, sp); // stack.pop() (sp = sp + 1)
+        make_code(start_while - 2, LDC, t2, end_while, 0); // t2 = end_while
+        make_code(start_while - 1, JEQ, t1, 0, t2); // pc = start_else (se a condicao for falsa)
+    } CHAVEDIREITA
     ;
 
 afirmacao_retorno:
@@ -256,7 +272,43 @@ variavel:
     ;
 
 expressao_simples:
-    expressao_matematica IGUAL expressao_matematica {
+    expressao_matematica MENOR expressao_matematica {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 1, 0);
+        gen_code(JLT, t2, 1, pc);
+        gen_code(LDC, t1, 0, 0);
+        push();
+    }
+    | expressao_matematica MENORIGUAL expressao_matematica {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 1, 0); 
+        gen_code(JLE, t2, 1, pc); 
+        gen_code(LDC, t1, 0, 0); 
+        push();
+    }
+    | expressao_matematica MAIOR expressao_matematica {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 1, 0); 
+        gen_code(JGT, t2, 1, pc); 
+        gen_code(LDC, t1, 0, 0); 
+        push();
+    }
+    | expressao_matematica MAIORIGUAL expressao_matematica {
+        ari_op(SUB);
+        pop();
+        copy(t1, t2);
+        gen_code(LDC, t1, 1, 0); 
+        gen_code(JGE, t2, 1, pc); 
+        gen_code(LDC, t1, 0, 0); 
+        push();
+    }
+    | expressao_matematica IGUAL expressao_matematica {
         ari_op(SUB);
         pop(); // t1 = stack.top(); stack.pop();
         copy(t1, t2); // t2 = t1;
@@ -267,66 +319,16 @@ expressao_simples:
         
         push(); // push(t1) (t1 = {0 ou 1})
     }
-    | expressao_matematica
-    ;
-
-comparacao:
-    MENOR {
+    | expressao_matematica DIFERENTE expressao_matematica {
         ari_op(SUB);
         pop();
         copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
-        gen_code(JLT, t2, 1, pc); 
         gen_code(LDC, t1, 1, 0); 
-        push();
-    }
-    | MENORIGUAL{
-        ari_op(SUB);
-        pop();
-        copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
-        gen_code(JLE, t2, 1, pc); 
-        gen_code(LDC, t1, 1, 0); 
-        push();
-    }
-    | MAIOR {
-        ari_op(SUB);
-        pop();
-        copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
-        gen_code(JGT, t2, 1, pc); 
-        gen_code(LDC, t1, 1, 0); 
-        push();
-    }
-    | MAIORIGUAL {
-        ari_op(SUB);
-        pop();
-        copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
-        gen_code(JGE, t2, 1, pc); 
-        gen_code(LDC, t1, 1, 0); 
-        push();
-    }
-    | IGUAL {
-        ari_op(SUB);
-        pop(); // t1 = stack.top(); stack.pop();
-        copy(t1, t2); // t2 = t1;
-        
-        gen_code(LDC, t1, 0, 0);
-        gen_code(JEQ, t2, 1, pc); // subtracao == 0 (os dois caras sao iguais)
-        gen_code(LDC, t1, 1, 0);
-        
-        push(); // push(t1) (t1 = {0 ou 1})
-    }
-    | DIFERENTE {
-        ari_op(SUB);
-        pop();
-        copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
         gen_code(JNE, t2, 1, pc); 
-        gen_code(LDC, t1, 1, 0); 
+        gen_code(LDC, t1, 0, 0); 
         push();
     }
+    | expressao_matematica
     ;
 
 expressao_matematica:
