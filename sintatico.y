@@ -31,7 +31,7 @@ int utilizar(char* nome) {
 // prototipos
 int data_location();
 int get_code_offset();
-int add_code_offset();
+int add_code_offset(int amount);
 
 void gen_code(enum code_ops operation, int arg0, int arg1, int arg2);
 void make_code(int addr, enum code_ops operation, int arg0, int arg1, int arg2);
@@ -45,6 +45,7 @@ void ari_op(enum code_ops op);
 
 void print_code();
 
+int start_if, start_else;
 
 %}
 
@@ -127,6 +128,7 @@ programa: INT MAIN PARENTESESQUERDO VOID PARENTESEDIREITO CHAVESQUERDA
 lista_declaracoes:
     lista_declaracoes declaracao_var 
     | declaracao_var 
+    | 
     ;
 
 declaracao_var:
@@ -143,7 +145,7 @@ tipo:
 
 lista_afirmacoes:
     lista_afirmacoes afirmacao
-    | /* empty */
+    |
     ;
 
 afirmacao:
@@ -163,8 +165,33 @@ afirmacao_expressao:
     ;
 
 afirmacao_selecao:
-    IF PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao
-    | IF PARENTESESQUERDO expressao PARENTESEDIREITO afirmacao ELSE afirmacao
+    IF PARENTESESQUERDO expressao PARENTESEDIREITO CHAVESQUERDA
+    {
+        add_code_offset(4);
+        start_if = get_code_offset();
+    }
+    lista_afirmacoes CHAVEDIREITA ELSE CHAVESQUERDA
+    {
+        add_code_offset(3);
+        start_else = get_code_offset();
+    }
+    lista_afirmacoes
+    {
+        int end_else = get_code_offset();
+
+        // jump pro inicio do else se a condicao for falsa
+        make_code(start_if - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
+        make_code(start_if - 3, LDA, sp, 1, sp); // stack.pop() (sp = sp + 1)
+
+        make_code(start_if - 2, LDC, t2, start_else, 0); // t2 = start_else
+        make_code(start_if - 1, JEQ, t1, 0, t2); // pc = start_else (se a condicao for falsa)
+
+        // jump incodicional pro fim do else
+        make_code(start_else - 3, LDC, t1, end_else, 0); // t1 = end_else
+        make_code(start_else - 2, LDC, t2, 0, 0); // t2 = 0;
+        make_code(start_else - 1, JEQ, t2, 0, t1); // pc = t1
+    }
+    CHAVEDIREITA
     ;
 
 afirmacao_iterativa:
@@ -189,13 +216,16 @@ afirmacao_leia:
     ;
 
 afirmacao_escreva:
-    ESCREVA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
-        int offset = utilizar($3);
-
-        gen_code(LDC, t1, 0, 0); // t1 = 0
-        gen_code(LD, t1, 0, t1); // t1 = dMem[0 + t1] = dMem[0] = 1023
-        gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]
+    ESCREVA PARENTESESQUERDO fator PARENTESEDIREITO PONTOVIRGULA { 
+        pop(); // t1 = fator
         gen_code(OUT, t1, 0, 0);
+
+        // int offset = utilizar($3);
+
+        // gen_code(LDC, t1, 0, 0); // t1 = 0
+        // gen_code(LD, t1, 0, t1); // t1 = dMem[0 + t1] = dMem[0] = 1023
+        // gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]
+        // gen_code(OUT, t1, 0, 0);
     }
     ;
 
@@ -226,7 +256,17 @@ variavel:
     ;
 
 expressao_simples:
-    expressao_matematica comparacao expressao_matematica 
+    expressao_matematica IGUAL expressao_matematica {
+        ari_op(SUB);
+        pop(); // t1 = stack.top(); stack.pop();
+        copy(t1, t2); // t2 = t1;
+        
+        gen_code(LDC, t1, 1, 0); // resposta da comparacao = 1
+        gen_code(JEQ, t2, 1, pc); // subtracao == 0 (os dois caras sao iguais, pula a prox. instrucao)
+        gen_code(LDC, t1, 0, 0); // resposta da comparacao = 0
+        
+        push(); // push(t1) (t1 = {0 ou 1})
+    }
     | expressao_matematica
     ;
 
@@ -268,14 +308,15 @@ comparacao:
         push();
     }
     | IGUAL {
-        //printf("IGUAL\n");
         ari_op(SUB);
-        pop();
-        copy(t1, t2);
-        gen_code(LDC, t1, 0, 0); 
-        gen_code(JEQ, t2, 1, pc); 
-        gen_code(LDC, t1, 1, 0); 
-        push();
+        pop(); // t1 = stack.top(); stack.pop();
+        copy(t1, t2); // t2 = t1;
+        
+        gen_code(LDC, t1, 0, 0);
+        gen_code(JEQ, t2, 1, pc); // subtracao == 0 (os dois caras sao iguais)
+        gen_code(LDC, t1, 1, 0);
+        
+        push(); // push(t1) (t1 = {0 ou 1})
     }
     | DIFERENTE {
         ari_op(SUB);

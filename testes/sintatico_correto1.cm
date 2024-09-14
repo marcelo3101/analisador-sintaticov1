@@ -1,7 +1,19 @@
-int main(void){
+int main(void) {
     int x;
 
-    leia(x);
+    x = 10;
+
+    if (x == 11) {
+        x = x + 1;
+        x = x + 1;
+        x = x + 1;
+        x = x + 1;
+        x = x + 1;
+    } else {
+        x = x - 1;
+        x = x - 1;
+        x = x - 1;
+    }
 
     escreva(x);
 }

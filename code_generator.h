@@ -78,9 +78,9 @@ int get_code_offset()
   return code_offset;
 }
 
-int add_code_offset()
+int add_code_offset(int amount)
 {
-  return code_offset++;
+  return code_offset += amount;
 }
 
 void gen_code(enum code_ops operation, int arg0, int arg1, int arg2)
