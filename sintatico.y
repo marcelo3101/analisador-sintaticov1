@@ -178,11 +178,13 @@ afirmacao_retorno:
 
 afirmacao_leia:
     LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
-        //printf("leia %s\n", $3);
-        gen_code(IN, t1, 0, 0);
-        int address = utilizar($3); 
-        gen_code(LDC, t2, address, sp);
-        gen_code(ST, t1, 0, t2); 
+        int offset = utilizar($3);
+
+        gen_code(IN, t1, 0, 0); // t1 = input()
+
+        gen_code(LDC, t2, 0, 0); // t2 = 0
+        gen_code(LD, t2, 0, t2); // t2 = dMem[0] = 1023
+        gen_code(ST, t1, -offset, t2); // dMem[-offset + t2] = reg[t1]
     }
     ;
 
