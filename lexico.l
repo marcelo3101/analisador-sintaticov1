@@ -5,8 +5,8 @@
 %}
 
 id          [a-zA-Z][a-zA-Z0-9]*
-numero      [-+]?[0-9]+(\.[0-9]*)?|(\.[0-9]+) 
-comentario  "/*"([^*]|(\*+[^*/]))*\*+/
+numero      [-+]?[0-9]+(\.[0-9]*)?|(\.[0-9]+)
+comentario  "/*"(.|\n)*"*/"
 whitespace  [ \t\n]+
 
 %%
@@ -41,10 +41,10 @@ whitespace  [ \t\n]+
 "main"        { /* printf("FLOAT: %s\n", yytext); */ return MAIN; }
 {id}          { /* printf("IDENTIFICADOR: %s\n", yytext); */ yylval.cadeia = (char *) strdup(yytext); return IDENTIFICADOR; }
 {numero}      { yylval.intval = atoi(yytext); return NUMERO; } /* printf("NUMERO: %s\n", yytext); */ 
+{comentario}  { /* printf("COMENTARIO: %s\n", yytext); */ }
 {whitespace}  { /* Ignora espacos em branco */ }
 .             { /* printf("UNKNOWN: %s\n", yytext); */ }
 %%
-//{comentario}  { /* printf("COMENTARIO: %s\n", yytext); */ }
 
 int yywrap() {
     return 1;
