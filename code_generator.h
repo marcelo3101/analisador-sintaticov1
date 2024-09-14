@@ -114,8 +114,7 @@ void push() {
 }
 
 // copy register operation
-void copy(enum Regs from, enum Regs to)
-{
+void copy(enum Regs from, enum Regs to) {
   gen_code(LDA, to, 0, from);
 }
 
@@ -131,10 +130,9 @@ void initializeProgram() {
 }
 
 // arithmetic operation
-void ari_op(enum code_ops op)
-{
+void ari_op(enum code_ops op) {
   pop();
-  copy(t1, t2);
+  copy(t1, t2); // t2 = t1
   pop();
   gen_code(op, t1, t1, t2);
   push();

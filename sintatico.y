@@ -212,13 +212,14 @@ expressao:
 
 variavel:
     IDENTIFICADOR { 
-        // int address = utilizar($1);
+        int offset = utilizar($1);
 
-        // gen_code(LDC, t1, address, sp);
-        // gen_code(LD, t1, 0, t1);
-        // push();
+        gen_code(LDC, t1, 0, 0); // t1 = 0
+        gen_code(LD, t1, 0, t1); // t1 = dMem[0 + t1] = dMem[0] = 1023
+        gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]
+        push();
         
-        // $$ = $1; // Pass the identifier name up the parse tree
+        $$ = $1; // Pass the identifier name up the parse tree
     }
     ;
 
@@ -286,15 +287,16 @@ comparacao:
     ;
 
 expressao_matematica:
-    expressao_matematica operacao_aditiva termo
-    | termo
+    termo
+    | termo ADICAO termo { ari_op(ADD); }
+    | termo SUBTRACAO termo { ari_op(SUB); }
+    | termo MULTIPLICACAO termo { ari_op(MUL); }
+    | termo DIVISAO termo { ari_op(DIV); }
+    
     ;
 
 operacao_aditiva:
-    ADICAO {
-        //printf("ADICAO\n");
-        ari_op(ADD);
-    }
+    ADICAO { ari_op(ADD); }
     | SUBTRACAO { ari_op(SUB); }
     ;
 
@@ -305,7 +307,6 @@ termo:
 
 operacao_multiplicativa:
     MULTIPLICACAO {
-        //printf("MULTIPLICACAO\n");
         ari_op(MUL);
     }
     | DIVISAO {ari_op(DIV);}
