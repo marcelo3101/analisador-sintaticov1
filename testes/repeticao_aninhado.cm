@@ -1,0 +1,17 @@
+int main(void) {
+    int x;
+    int y;
+
+    x = 0;
+    y = 0;
+
+    while (x < 10) {
+        while (y < 10) {
+            escreva(y);
+            y = y + 1;
+        }
+
+        x = x + 1;
+        y = 0;
+    }
+}

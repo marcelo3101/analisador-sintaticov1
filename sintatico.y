@@ -5,6 +5,10 @@
 #include "tabela_de_simbolos.h"
 #include "code_generator.h"
 
+#define MAX_STACK_SIZE 32
+#define stack_push(sp, n) (*((sp)++) = (n))
+#define stack_pop(sp) (*--(sp))
+
 void declarar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
@@ -45,7 +49,9 @@ void ari_op(enum code_ops op);
 
 void print_code();
 
-int start_if, start_else, start_comp, start_while, end_while;
+int stack1[MAX_STACK_SIZE], stack2[MAX_STACK_SIZE], stack3[MAX_STACK_SIZE], stack4[MAX_STACK_SIZE], stack5[MAX_STACK_SIZE];
+
+int *start_if_ptr = stack1, *start_else_ptr = stack2, *start_comp_ptr = stack3, *start_while_ptr = stack4, *end_while_ptr = stack5;
 
 %}
 
@@ -170,10 +176,12 @@ afirmacao_selecao:
     IF PARENTESESQUERDO expressao PARENTESEDIREITO THEN CHAVESQUERDA
     {
         add_code_offset(4);
-        start_if = get_code_offset();
+        // start_if = get_code_offset();
+        stack_push(start_if_ptr, get_code_offset());
     }
     lista_afirmacoes CHAVEDIREITA {
-        start_else = get_code_offset();
+        int start_else = get_code_offset();
+        int start_if = stack_pop(start_if_ptr);
 
         // jump pro fim do if se a condicao for falsa
         make_code(start_if - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
@@ -184,16 +192,20 @@ afirmacao_selecao:
     | IF PARENTESESQUERDO expressao PARENTESEDIREITO CHAVESQUERDA
     {
         add_code_offset(4);
-        start_if = get_code_offset();
+        // start_if = get_code_offset();
+        stack_push(start_if_ptr, get_code_offset());
     }
     lista_afirmacoes CHAVEDIREITA ELSE CHAVESQUERDA
     {
         add_code_offset(3);
-        start_else = get_code_offset();
+        // start_else = get_code_offset();
+        stack_push(start_else_ptr, get_code_offset());
     }
     lista_afirmacoes
     {
         int end_else = get_code_offset();
+        int start_else = stack_pop(start_else_ptr);
+        int start_if = stack_pop(start_if_ptr);
 
         // jump pro inicio do else se a condicao for falsa
         make_code(start_if - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
@@ -211,17 +223,22 @@ afirmacao_selecao:
 
 afirmacao_iterativa:
     WHILE PARENTESESQUERDO {
-        start_comp = get_code_offset(); // inicio da comparacao do while
+        // start_comp = get_code_offset(); // inicio da comparacao do while
+        stack_push(start_comp_ptr, get_code_offset());
     } expressao {
         add_code_offset(4);
-        start_while = get_code_offset(); // inicio do meu codigo dentro do while
+        // start_while = get_code_offset(); // inicio do meu codigo dentro do while
+        stack_push(start_while_ptr, get_code_offset());
     } PARENTESEDIREITO CHAVESQUERDA lista_afirmacoes {
+        int start_while = stack_pop(start_while_ptr);
+        int start_comp = stack_pop(start_comp_ptr);
+
         // jump incondicional pro inicio do while
         gen_code(LDC, t1, start_comp, 0);
         gen_code(LDC, t2, 0, 0);
         gen_code(JEQ, t2, 0, t1);
 
-        end_while = get_code_offset();
+        int end_while = get_code_offset();
 
         make_code(start_while - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
         make_code(start_while - 3, LDA, sp, 1, sp); // stack.pop() (sp = sp + 1)

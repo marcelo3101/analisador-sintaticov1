@@ -27,6 +27,10 @@
 #include "tabela_de_simbolos.h"
 #include "code_generator.h"
 
+#define MAX_STACK_SIZE 32
+#define stack_push(sp, n) (*((sp)++) = (n))
+#define stack_pop(sp) (*--(sp))
+
 void declarar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
@@ -67,7 +71,9 @@ void ari_op(enum code_ops op);
 
 void print_code();
 
-int start_if, start_else, start_comp, start_while, end_while;
+int stack1[MAX_STACK_SIZE], stack2[MAX_STACK_SIZE], stack3[MAX_STACK_SIZE], stack4[MAX_STACK_SIZE], stack5[MAX_STACK_SIZE];
+
+int *start_if_ptr = stack1, *start_else_ptr = stack2, *start_comp_ptr = stack3, *start_while_ptr = stack4, *end_while_ptr = stack5;
 
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
@@ -75,14 +81,14 @@ int start_if, start_else, start_comp, start_while, end_while;
 #endif
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
-#line 52 "sintatico.y"
+#line 58 "sintatico.y"
 typedef union YYSTYPE {
     char *cadeia;
     int intval;
 
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 86 "y.tab.c"
+#line 92 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -596,7 +602,7 @@ static YYINT  *yylexp = 0;
 
 static YYINT  *yylexemes = 0;
 #endif /* YYBTYACC */
-#line 404 "sintatico.y"
+#line 421 "sintatico.y"
 
 int main(int argc, char **argv) {
     FILE *output_file = fopen("OUT.tm", "w");
@@ -627,7 +633,7 @@ int yyerror(char *s) {
     fprintf(stderr, "Problema com a análise sintática! %s\n", s);
     return 0;
 }
-#line 631 "y.tab.c"
+#line 637 "y.tab.c"
 
 /* For use in generated program */
 #define yydepth (int)(yystack.s_mark - yystack.s_base)
@@ -1298,12 +1304,12 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 106 "sintatico.y"
+#line 112 "sintatico.y"
 	{ initializeProgram(); }
-#line 1304 "y.tab.c"
+#line 1310 "y.tab.c"
 break;
 case 2:
-#line 107 "sintatico.y"
+#line 113 "sintatico.y"
 	{
         gen_code(HALT, 0, 0, 0);
 
@@ -1323,35 +1329,37 @@ case 2:
         /* printf("Programa sintaticamente e semanticamente correto!\n");*/
         YYACCEPT;
     }
-#line 1327 "y.tab.c"
+#line 1333 "y.tab.c"
 break;
 case 7:
-#line 137 "sintatico.y"
+#line 143 "sintatico.y"
 	{ 
         /*printf("declara %s\n", $2);*/
         declarar(yystack.l_mark[-1].cadeia); 
     }
-#line 1335 "y.tab.c"
+#line 1341 "y.tab.c"
 break;
 case 18:
-#line 163 "sintatico.y"
+#line 169 "sintatico.y"
 	{
         /*printf("afirm\n");*/
     }
-#line 1342 "y.tab.c"
+#line 1348 "y.tab.c"
 break;
 case 20:
-#line 171 "sintatico.y"
+#line 177 "sintatico.y"
 	{
         add_code_offset(4);
-        start_if = get_code_offset();
+        /* start_if = get_code_offset();*/
+        stack_push(start_if_ptr, get_code_offset());
     }
-#line 1350 "y.tab.c"
+#line 1357 "y.tab.c"
 break;
 case 21:
-#line 175 "sintatico.y"
+#line 182 "sintatico.y"
 	{
-        start_else = get_code_offset();
+        int start_else = get_code_offset();
+        int start_if = stack_pop(start_if_ptr);
 
         /* jump pro fim do if se a condicao for falsa*/
         make_code(start_if - 4, LD, t1, 0, sp); /* t1 = stack.top() (resultado da comparacao)*/
@@ -1359,28 +1367,32 @@ case 21:
         make_code(start_if - 2, LDC, t2, start_else, 0); /* t2 = start_else*/
         make_code(start_if - 1, JEQ, t1, 0, t2); /* pc = start_else (se a condicao for falsa)*/
     }
-#line 1363 "y.tab.c"
-break;
-case 22:
-#line 185 "sintatico.y"
-	{
-        add_code_offset(4);
-        start_if = get_code_offset();
-    }
 #line 1371 "y.tab.c"
 break;
+case 22:
+#line 193 "sintatico.y"
+	{
+        add_code_offset(4);
+        /* start_if = get_code_offset();*/
+        stack_push(start_if_ptr, get_code_offset());
+    }
+#line 1380 "y.tab.c"
+break;
 case 23:
-#line 190 "sintatico.y"
+#line 199 "sintatico.y"
 	{
         add_code_offset(3);
-        start_else = get_code_offset();
+        /* start_else = get_code_offset();*/
+        stack_push(start_else_ptr, get_code_offset());
     }
-#line 1379 "y.tab.c"
+#line 1389 "y.tab.c"
 break;
 case 24:
-#line 195 "sintatico.y"
+#line 205 "sintatico.y"
 	{
         int end_else = get_code_offset();
+        int start_else = stack_pop(start_else_ptr);
+        int start_if = stack_pop(start_if_ptr);
 
         /* jump pro inicio do else se a condicao for falsa*/
         make_code(start_if - 4, LD, t1, 0, sp); /* t1 = stack.top() (resultado da comparacao)*/
@@ -1393,42 +1405,47 @@ case 24:
         make_code(start_else - 2, LDC, t2, 0, 0); /* t2 = 0;*/
         make_code(start_else - 1, JEQ, t2, 0, t1); /* pc = t1*/
     }
-#line 1397 "y.tab.c"
+#line 1409 "y.tab.c"
 break;
 case 26:
-#line 213 "sintatico.y"
+#line 225 "sintatico.y"
 	{
-        start_comp = get_code_offset(); /* inicio da comparacao do while*/
+        /* start_comp = get_code_offset(); // inicio da comparacao do while*/
+        stack_push(start_comp_ptr, get_code_offset());
     }
-#line 1404 "y.tab.c"
+#line 1417 "y.tab.c"
 break;
 case 27:
-#line 215 "sintatico.y"
+#line 228 "sintatico.y"
 	{
         add_code_offset(4);
-        start_while = get_code_offset(); /* inicio do meu codigo dentro do while*/
+        /* start_while = get_code_offset(); // inicio do meu codigo dentro do while*/
+        stack_push(start_while_ptr, get_code_offset());
     }
-#line 1412 "y.tab.c"
+#line 1426 "y.tab.c"
 break;
 case 28:
-#line 218 "sintatico.y"
+#line 232 "sintatico.y"
 	{
+        int start_while = stack_pop(start_while_ptr);
+        int start_comp = stack_pop(start_comp_ptr);
+
         /* jump incondicional pro inicio do while*/
         gen_code(LDC, t1, start_comp, 0);
         gen_code(LDC, t2, 0, 0);
         gen_code(JEQ, t2, 0, t1);
 
-        end_while = get_code_offset();
+        int end_while = get_code_offset();
 
         make_code(start_while - 4, LD, t1, 0, sp); /* t1 = stack.top() (resultado da comparacao)*/
         make_code(start_while - 3, LDA, sp, 1, sp); /* stack.pop() (sp = sp + 1)*/
         make_code(start_while - 2, LDC, t2, end_while, 0); /* t2 = end_while*/
         make_code(start_while - 1, JEQ, t1, 0, t2); /* pc = start_else (se a condicao for falsa)*/
     }
-#line 1429 "y.tab.c"
+#line 1446 "y.tab.c"
 break;
 case 32:
-#line 239 "sintatico.y"
+#line 256 "sintatico.y"
 	{ 
         int offset = utilizar(yystack.l_mark[-2].cadeia);
 
@@ -1438,10 +1455,10 @@ case 32:
         gen_code(LD, t2, 0, t2); /* t2 = dMem[0] = 1023*/
         gen_code(ST, t1, -offset, t2); /* dMem[-offset + t2] = reg[t1]*/
     }
-#line 1442 "y.tab.c"
+#line 1459 "y.tab.c"
 break;
 case 33:
-#line 251 "sintatico.y"
+#line 268 "sintatico.y"
 	{ 
         pop(); /* t1 = fator*/
         gen_code(OUT, t1, 0, 0);
@@ -1453,10 +1470,10 @@ case 33:
         /* gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]*/
         /* gen_code(OUT, t1, 0, 0);*/
     }
-#line 1457 "y.tab.c"
+#line 1474 "y.tab.c"
 break;
 case 34:
-#line 265 "sintatico.y"
+#line 282 "sintatico.y"
 	{
         int offset = utilizar(yystack.l_mark[-2].cadeia);
 
@@ -1466,10 +1483,10 @@ case 34:
         gen_code(LD, t2, 0, t2); /* t2 = dMem[0] = 1023*/
         gen_code(ST, t1, -offset, t2); /* dMem[-offset + t2] = reg[t1]*/
     }
-#line 1470 "y.tab.c"
+#line 1487 "y.tab.c"
 break;
 case 36:
-#line 278 "sintatico.y"
+#line 295 "sintatico.y"
 	{ 
         int offset = utilizar(yystack.l_mark[0].cadeia);
 
@@ -1480,10 +1497,10 @@ case 36:
         
         yyval.cadeia = yystack.l_mark[0].cadeia; /* Pass the identifier name up the parse tree*/
     }
-#line 1484 "y.tab.c"
+#line 1501 "y.tab.c"
 break;
 case 37:
-#line 291 "sintatico.y"
+#line 308 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1493,10 +1510,10 @@ case 37:
         gen_code(LDC, t1, 0, 0);
         push();
     }
-#line 1497 "y.tab.c"
+#line 1514 "y.tab.c"
 break;
 case 38:
-#line 300 "sintatico.y"
+#line 317 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1506,10 +1523,10 @@ case 38:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1510 "y.tab.c"
+#line 1527 "y.tab.c"
 break;
 case 39:
-#line 309 "sintatico.y"
+#line 326 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1519,10 +1536,10 @@ case 39:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1523 "y.tab.c"
+#line 1540 "y.tab.c"
 break;
 case 40:
-#line 318 "sintatico.y"
+#line 335 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1532,10 +1549,10 @@ case 40:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1536 "y.tab.c"
+#line 1553 "y.tab.c"
 break;
 case 41:
-#line 327 "sintatico.y"
+#line 344 "sintatico.y"
 	{
         ari_op(SUB);
         pop(); /* t1 = stack.top(); stack.pop();*/
@@ -1547,10 +1564,10 @@ case 41:
         
         push(); /* push(t1) (t1 = {0 ou 1})*/
     }
-#line 1551 "y.tab.c"
+#line 1568 "y.tab.c"
 break;
 case 42:
-#line 338 "sintatico.y"
+#line 355 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1560,71 +1577,71 @@ case 42:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1564 "y.tab.c"
+#line 1581 "y.tab.c"
 break;
 case 45:
-#line 352 "sintatico.y"
+#line 369 "sintatico.y"
 	{ ari_op(ADD); }
-#line 1569 "y.tab.c"
+#line 1586 "y.tab.c"
 break;
 case 46:
-#line 353 "sintatico.y"
+#line 370 "sintatico.y"
 	{ ari_op(SUB); }
-#line 1574 "y.tab.c"
+#line 1591 "y.tab.c"
 break;
 case 47:
-#line 354 "sintatico.y"
+#line 371 "sintatico.y"
 	{ ari_op(MUL); }
-#line 1579 "y.tab.c"
+#line 1596 "y.tab.c"
 break;
 case 48:
-#line 355 "sintatico.y"
+#line 372 "sintatico.y"
 	{ ari_op(DIV); }
-#line 1584 "y.tab.c"
+#line 1601 "y.tab.c"
 break;
 case 52:
-#line 377 "sintatico.y"
+#line 394 "sintatico.y"
 	{ ari_op(ADD); }
-#line 1589 "y.tab.c"
+#line 1606 "y.tab.c"
 break;
 case 53:
-#line 378 "sintatico.y"
+#line 395 "sintatico.y"
 	{ ari_op(SUB); }
-#line 1594 "y.tab.c"
+#line 1611 "y.tab.c"
 break;
 case 54:
-#line 379 "sintatico.y"
+#line 396 "sintatico.y"
 	{ ari_op(MUL); }
-#line 1599 "y.tab.c"
+#line 1616 "y.tab.c"
 break;
 case 55:
-#line 380 "sintatico.y"
+#line 397 "sintatico.y"
 	{ ari_op(DIV); }
-#line 1604 "y.tab.c"
+#line 1621 "y.tab.c"
 break;
 case 56:
-#line 381 "sintatico.y"
+#line 398 "sintatico.y"
 	{ /* // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima */ }
-#line 1609 "y.tab.c"
+#line 1626 "y.tab.c"
 break;
 case 57:
-#line 382 "sintatico.y"
+#line 399 "sintatico.y"
 	{
         gen_code(LDC, t1, yystack.l_mark[0].intval, 0);
         push();
     }
-#line 1617 "y.tab.c"
+#line 1634 "y.tab.c"
 break;
 case 58:
-#line 386 "sintatico.y"
+#line 403 "sintatico.y"
 	{ /* números negativos*/
         gen_code(LDC, t1, -1, 0);
         push();
         ari_op(MUL);
     }
-#line 1626 "y.tab.c"
+#line 1643 "y.tab.c"
 break;
-#line 1628 "y.tab.c"
+#line 1645 "y.tab.c"
     default:
         break;
     }
