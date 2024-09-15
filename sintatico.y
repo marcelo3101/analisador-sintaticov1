@@ -92,8 +92,9 @@ int start_if, start_else, start_comp, start_while, end_while;
 
 %start programa
 
-%left '-' '+'
-%left '*' '/'
+%left SUBTRACAO ADICAO
+%left MULTIPLICACAO DIVISAO
+
 %left UMINUS
 
 /* Regras */
@@ -337,28 +338,31 @@ expressao_matematica:
     | termo SUBTRACAO termo { ari_op(SUB); }
     | termo MULTIPLICACAO termo { ari_op(MUL); }
     | termo DIVISAO termo { ari_op(DIV); }
-    
     ;
 
-operacao_aditiva:
+/* operacao_aditiva:
     ADICAO { ari_op(ADD); }
     | SUBTRACAO { ari_op(SUB); }
-    ;
+    ; */
 
 termo:
-    termo operacao_multiplicativa fator
-    | fator 
+    /* termo operacao_multiplicativa fator */
+    | fator
     ;
 
-operacao_multiplicativa:
+/* operacao_multiplicativa:
     MULTIPLICACAO {
         ari_op(MUL);
     }
     | DIVISAO {ari_op(DIV);}
-    ;
+    ; */
 
 fator:
     PARENTESESQUERDO expressao PARENTESEDIREITO
+    | fator ADICAO fator { ari_op(ADD); }
+    | fator SUBTRACAO fator { ari_op(SUB); }
+    | fator MULTIPLICACAO fator { ari_op(MUL); }
+    | fator DIVISAO fator { ari_op(DIV); }
     | variavel { /* // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima */ }
     | NUMERO {
         gen_code(LDC, t1, $1, 0);
