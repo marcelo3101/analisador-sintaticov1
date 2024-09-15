@@ -1,0 +1,6 @@
+int main(void) {
+    int x;
+
+    leia(x);
+    escreva(x);
+}
