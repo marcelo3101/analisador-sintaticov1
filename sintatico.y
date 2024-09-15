@@ -384,7 +384,27 @@ lista_argumentos:
 %%
 
 int main(int argc, char **argv) {
+    FILE *output_file = fopen("OUT.tm", "w");
+    if (!output_file) {
+        fprintf(stderr, "Erro ao abrir o arquivo de saída!\n");
+        return 1;
+    }
+
+    // Redireciona stdout para o arquivo de saída
+    int stdout_fd = dup(fileno(stdout));
+    dup2(fileno(output_file), fileno(stdout));
+
     yyparse();
+
+    // Restaura stdout
+    fflush(stdout);
+    dup2(stdout_fd, fileno(stdout));
+    close(stdout_fd);
+    fclose(output_file);
+    
+    // print no terminal
+    //print_code();
+
     return 0;
 }
 
