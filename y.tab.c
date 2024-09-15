@@ -1900,7 +1900,8 @@ int main(int argc, char **argv) {
     close(stdout_fd);
     fclose(output_file);
     
-    print_code();
+    // print no terminal
+    //print_code();
 
     return 0;
 }
