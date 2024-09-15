@@ -1,9 +1,17 @@
 int main(void) {
     int contador;
 
-    leia(contador);
+    contador = 10;
 
-    if (contador == 10) {
+    if (contador == 10) then {
+        escreva(1);
+    }
+
+    while (contador < 20) {
+        contador = contador + 1;
+    }
+
+    if (contador != 20) {
         escreva(1);
     } else {
         escreva(0);

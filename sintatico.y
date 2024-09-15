@@ -85,6 +85,7 @@ int start_if, start_else, start_comp, start_while, end_while;
 %token LEIA
 %token ESCREVA
 %token MAIN
+%token THEN
 %token <cadeia> IDENTIFICADOR
 %token <intval> NUMERO
 
@@ -166,7 +167,21 @@ afirmacao_expressao:
     ;
 
 afirmacao_selecao:
-    IF PARENTESESQUERDO expressao PARENTESEDIREITO CHAVESQUERDA
+    IF PARENTESESQUERDO expressao PARENTESEDIREITO THEN CHAVESQUERDA
+    {
+        add_code_offset(4);
+        start_if = get_code_offset();
+    }
+    lista_afirmacoes CHAVEDIREITA {
+        start_else = get_code_offset();
+
+        // jump pro fim do if se a condicao for falsa
+        make_code(start_if - 4, LD, t1, 0, sp); // t1 = stack.top() (resultado da comparacao)
+        make_code(start_if - 3, LDA, sp, 1, sp); // stack.pop() (sp = sp + 1)
+        make_code(start_if - 2, LDC, t2, start_else, 0); // t2 = start_else
+        make_code(start_if - 1, JEQ, t1, 0, t2); // pc = start_else (se a condicao for falsa)
+    }
+    | IF PARENTESESQUERDO expressao PARENTESEDIREITO CHAVESQUERDA
     {
         add_code_offset(4);
         start_if = get_code_offset();

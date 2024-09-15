@@ -38,7 +38,8 @@ whitespace  [ \t\n]+
 "void"        { /* printf("VOID: %s\n", yytext); */ return VOID; }
 "int"         { /* printf("INT: %s\n", yytext); */ return INT; }
 "float"       { /* printf("FLOAT: %s\n", yytext); */ return FLOAT; }
-"main"        { /* printf("FLOAT: %s\n", yytext); */ return MAIN; }
+"main"        { /* printf("MAIN: %s\n", yytext); */ return MAIN; }
+"then"        { /* printf("THEN: %s\n", yytext); */ return THEN; }
 {id}          { /* printf("IDENTIFICADOR: %s\n", yytext); */ yylval.cadeia = (char *) strdup(yytext); return IDENTIFICADOR; }
 {numero}      { yylval.intval = atoi(yytext); return NUMERO; } /* printf("NUMERO: %s\n", yytext); */ 
 {comentario}  { /* printf("COMENTARIO: %s\n", yytext); */ }
