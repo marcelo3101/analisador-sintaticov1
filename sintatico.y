@@ -134,13 +134,13 @@ programa: INT MAIN PARENTESESQUERDO VOID PARENTESEDIREITO CHAVESQUERDA
     ;
 
 lista_declaracoes:
-    lista_declaracoes declaracao_var 
-    | declaracao_var 
+    lista_declaracoes declaracao_var
+    | declaracao_var
     | 
     ;
 
 declaracao_var:
-    tipo IDENTIFICADOR PONTOVIRGULA { 
+    tipo IDENTIFICADOR PONTOVIRGULA {
         //printf("declara %s\n", $2);
         declarar($2); 
     }
@@ -372,22 +372,9 @@ expressao_matematica:
     | termo DIVISAO termo { ari_op(DIV); }
     ;
 
-/* operacao_aditiva:
-    ADICAO { ari_op(ADD); }
-    | SUBTRACAO { ari_op(SUB); }
-    ; */
-
 termo:
-    /* termo operacao_multiplicativa fator */
     | fator
     ;
-
-/* operacao_multiplicativa:
-    MULTIPLICACAO {
-        ari_op(MUL);
-    }
-    | DIVISAO {ari_op(DIV);}
-    ; */
 
 fator:
     PARENTESESQUERDO expressao PARENTESEDIREITO
@@ -405,16 +392,6 @@ fator:
         push();
         ari_op(MUL);
     }
-    ;
-
-argumentos:
-    lista_argumentos
-    | /* empty */
-    ;
-
-lista_argumentos:
-    lista_argumentos VIRGULA expressao
-    | expressao
     ;
 
 %%
@@ -448,3 +425,5 @@ int yyerror(char *s) {
     fprintf(stderr, "Problema com a análise sintática! %s\n", s);
     return 0;
 }
+
+
