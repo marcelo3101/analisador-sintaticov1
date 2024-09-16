@@ -27,27 +27,34 @@
 #include "tabela_de_simbolos.h"
 #include "code_generator.h"
 
+#define MAX_ERRORS 16
+#define MAX_STR_SIZE 128
+
 #define MAX_STACK_SIZE 32
 #define stack_push(sp, n) (*((sp)++) = (n))
 #define stack_pop(sp) (*--(sp))
 
-void declarar(char* nome) {
+char errors[MAX_ERRORS][MAX_STR_SIZE];
+int number_of_errors = 0;
+
+int declarar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
     if (s != NULL) {
-        printf("ERRO: O identificador \"%s\" já está definido\n", nome);
-        exit(1);
+        sprintf(errors[number_of_errors++], "ERRO: O identificador \"%s\" já está definido\n", nome);
+        return -1;
     }
 
     s = adicionar_simbolo(nome);
+    return 0;
 }
 
 int utilizar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
     if (s == NULL) {
-        printf("ERRO: O identificador \"%s\" não foi definido\n", nome);
-        exit(1);
+        sprintf(errors[number_of_errors++], "ERRO: O identificador \"%s\" não foi definido\n", nome);
+        return -1;
     }
 
     s->usada = 1;
@@ -81,14 +88,13 @@ int *start_if_ptr = stack1, *start_else_ptr = stack2, *start_comp_ptr = stack3, 
 #endif
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
-#line 58 "sintatico.y"
+#line 65 "sintatico.y"
 typedef union YYSTYPE {
     char *cadeia;
     int intval;
-
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 92 "y.tab.c"
+#line 98 "y.tab.c"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -166,8 +172,7 @@ static const YYINT yylhs[] = {                           -1,
    10,   17,   18,   19,   10,   20,   21,   22,   11,   12,
    12,   13,   14,   15,   15,    1,   24,   24,   24,   24,
    24,   24,   24,   25,   25,   25,   25,   25,   26,   26,
-   23,   23,   23,   23,   23,   23,   23,   23,   27,   27,
-   28,   28,
+   23,   23,   23,   23,   23,   23,   23,   23,
 };
 static const YYINT yylen[] = {                            2,
     0,    0,   11,    2,    1,    0,    3,    1,    1,    2,
@@ -175,8 +180,7 @@ static const YYINT yylen[] = {                            2,
     9,    0,    0,    0,   14,    0,    0,    0,   10,    2,
     3,    5,    5,    3,    1,    1,    3,    3,    3,    3,
     3,    3,    1,    1,    3,    3,    3,    3,    0,    1,
-    3,    3,    3,    3,    3,    1,    1,    2,    1,    0,
-    3,    1,
+    3,    3,    3,    3,    3,    1,    1,    2,
 };
 static const YYINT yydefred[] = {                         0,
     0,    0,    0,    0,    0,    0,    0,    8,    9,    0,
@@ -211,7 +215,7 @@ static const YYINT yystos[] = {                           0,
 static const YYINT yydgoto[] = {                          2,
    28,   10,   16,   13,   29,   11,   12,   30,   31,   32,
    33,   34,   35,   36,   37,  102,   98,  112,  114,   69,
-   95,  109,   38,   39,   40,   41,    0,    0,
+   95,  109,   38,   39,   40,   41,
 };
 static const YYINT yysindex[] = {                      -277,
  -278,    0, -248, -266, -235, -227, -252,    0,    0, -252,
@@ -260,7 +264,7 @@ static const YYINT yycindex[] = {                         0,
 static const YYINT yygindex[] = {                         0,
     0,    0,  -85,    0,    0,  165,    0,    0,    0,    0,
     0,    0,    0,    0,  -17,    0,    0,    0,    0,    0,
-    0,    0,   30,    0,  293,  100,    0,    0,
+    0,    0,   30,    0,  293,  100,
 };
 #define YYTABLESIZE 355
 static const YYINT yytable[] = {                          6,
@@ -384,7 +388,7 @@ static const YYINT yyctable[] = {                        -1,
 #define YYDEBUG 0
 #endif
 #define YYMAXTOKEN 289
-#define YYUNDFTOKEN 320
+#define YYUNDFTOKEN 318
 #define YYTRANSLATE(a) ((a) > YYMAXTOKEN ? YYUNDFTOKEN : (a))
 #if YYDEBUG
 static const char *const yyname[] = {
@@ -405,7 +409,7 @@ static const char *const yyname[] = {
 "afirmacao","afirmacao_expressao","afirmacao_selecao","afirmacao_iterativa",
 "afirmacao_retorno","afirmacao_leia","afirmacao_escreva","expressao","$$3",
 "$$4","$$5","$$6","$$7","$$8","$$9","fator","expressao_simples",
-"expressao_matematica","termo","argumentos","lista_argumentos","illegal-symbol",
+"expressao_matematica","termo","illegal-symbol",
 };
 static const char *const yyrule[] = {
 "$accept : programa",
@@ -467,10 +471,6 @@ static const char *const yyrule[] = {
 "fator : variavel",
 "fator : NUMERO",
 "fator : '-' NUMERO",
-"argumentos : lista_argumentos",
-"argumentos :",
-"lista_argumentos : lista_argumentos VIRGULA expressao",
-"lista_argumentos : expressao",
 
 };
 #endif
@@ -602,7 +602,7 @@ static YYINT  *yylexp = 0;
 
 static YYINT  *yylexemes = 0;
 #endif /* YYBTYACC */
-#line 421 "sintatico.y"
+#line 418 "sintatico.y"
 
 int main(int argc, char **argv) {
     FILE *output_file = fopen("OUT.tm", "w");
@@ -624,16 +624,25 @@ int main(int argc, char **argv) {
     fclose(output_file);
     
     // print no terminal
-    //print_code();
+    // print_code();
+
+    for (int i = 0; i < number_of_errors; i++) {
+        printf("%s", errors[i]);
+    }
 
     return 0;
 }
 
 int yyerror(char *s) {
+    
+
     fprintf(stderr, "Problema com a análise sintática! %s\n", s);
+    
     return 0;
 }
-#line 637 "y.tab.c"
+
+
+#line 646 "y.tab.c"
 
 /* For use in generated program */
 #define yydepth (int)(yystack.s_mark - yystack.s_base)
@@ -1304,12 +1313,12 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 112 "sintatico.y"
+#line 118 "sintatico.y"
 	{ initializeProgram(); }
-#line 1310 "y.tab.c"
+#line 1319 "y.tab.c"
 break;
 case 2:
-#line 113 "sintatico.y"
+#line 119 "sintatico.y"
 	{
         gen_code(HALT, 0, 0, 0);
 
@@ -1317,7 +1326,7 @@ case 2:
 
         while (atual != NULL) {
             if (atual->usada == 0) {
-                printf("WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
+                sprintf(errors[number_of_errors++], "WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
             }
 
             atual = atual->prox;
@@ -1329,34 +1338,36 @@ case 2:
         /* printf("Programa sintaticamente e semanticamente correto!\n");*/
         YYACCEPT;
     }
-#line 1333 "y.tab.c"
+#line 1342 "y.tab.c"
 break;
 case 7:
-#line 143 "sintatico.y"
-	{ 
+#line 149 "sintatico.y"
+	{
         /*printf("declara %s\n", $2);*/
-        declarar(yystack.l_mark[-1].cadeia); 
+        if (declarar(yystack.l_mark[-1].cadeia) < 0) {
+            return 1;
+        } 
     }
-#line 1341 "y.tab.c"
+#line 1352 "y.tab.c"
 break;
 case 18:
-#line 169 "sintatico.y"
+#line 177 "sintatico.y"
 	{
         /*printf("afirm\n");*/
     }
-#line 1348 "y.tab.c"
+#line 1359 "y.tab.c"
 break;
 case 20:
-#line 177 "sintatico.y"
+#line 185 "sintatico.y"
 	{
         add_code_offset(4);
         /* start_if = get_code_offset();*/
         stack_push(start_if_ptr, get_code_offset());
     }
-#line 1357 "y.tab.c"
+#line 1368 "y.tab.c"
 break;
 case 21:
-#line 182 "sintatico.y"
+#line 190 "sintatico.y"
 	{
         int start_else = get_code_offset();
         int start_if = stack_pop(start_if_ptr);
@@ -1367,28 +1378,28 @@ case 21:
         make_code(start_if - 2, LDC, t2, start_else, 0); /* t2 = start_else*/
         make_code(start_if - 1, JEQ, t1, 0, t2); /* pc = start_else (se a condicao for falsa)*/
     }
-#line 1371 "y.tab.c"
+#line 1382 "y.tab.c"
 break;
 case 22:
-#line 193 "sintatico.y"
+#line 201 "sintatico.y"
 	{
         add_code_offset(4);
         /* start_if = get_code_offset();*/
         stack_push(start_if_ptr, get_code_offset());
     }
-#line 1380 "y.tab.c"
+#line 1391 "y.tab.c"
 break;
 case 23:
-#line 199 "sintatico.y"
+#line 207 "sintatico.y"
 	{
         add_code_offset(3);
         /* start_else = get_code_offset();*/
         stack_push(start_else_ptr, get_code_offset());
     }
-#line 1389 "y.tab.c"
+#line 1400 "y.tab.c"
 break;
 case 24:
-#line 205 "sintatico.y"
+#line 213 "sintatico.y"
 	{
         int end_else = get_code_offset();
         int start_else = stack_pop(start_else_ptr);
@@ -1405,27 +1416,27 @@ case 24:
         make_code(start_else - 2, LDC, t2, 0, 0); /* t2 = 0;*/
         make_code(start_else - 1, JEQ, t2, 0, t1); /* pc = t1*/
     }
-#line 1409 "y.tab.c"
+#line 1420 "y.tab.c"
 break;
 case 26:
-#line 225 "sintatico.y"
+#line 233 "sintatico.y"
 	{
         /* start_comp = get_code_offset(); // inicio da comparacao do while*/
         stack_push(start_comp_ptr, get_code_offset());
     }
-#line 1417 "y.tab.c"
+#line 1428 "y.tab.c"
 break;
 case 27:
-#line 228 "sintatico.y"
+#line 236 "sintatico.y"
 	{
         add_code_offset(4);
         /* start_while = get_code_offset(); // inicio do meu codigo dentro do while*/
         stack_push(start_while_ptr, get_code_offset());
     }
-#line 1426 "y.tab.c"
+#line 1437 "y.tab.c"
 break;
 case 28:
-#line 232 "sintatico.y"
+#line 240 "sintatico.y"
 	{
         int start_while = stack_pop(start_while_ptr);
         int start_comp = stack_pop(start_comp_ptr);
@@ -1442,12 +1453,16 @@ case 28:
         make_code(start_while - 2, LDC, t2, end_while, 0); /* t2 = end_while*/
         make_code(start_while - 1, JEQ, t1, 0, t2); /* pc = start_else (se a condicao for falsa)*/
     }
-#line 1446 "y.tab.c"
+#line 1457 "y.tab.c"
 break;
 case 32:
-#line 256 "sintatico.y"
+#line 264 "sintatico.y"
 	{ 
         int offset = utilizar(yystack.l_mark[-2].cadeia);
+
+        if (offset < 0) {
+            return 1;
+        }
 
         gen_code(IN, t1, 0, 0); /* t1 = input()*/
 
@@ -1455,10 +1470,10 @@ case 32:
         gen_code(LD, t2, 0, t2); /* t2 = dMem[0] = 1023*/
         gen_code(ST, t1, -offset, t2); /* dMem[-offset + t2] = reg[t1]*/
     }
-#line 1459 "y.tab.c"
+#line 1474 "y.tab.c"
 break;
 case 33:
-#line 268 "sintatico.y"
+#line 280 "sintatico.y"
 	{ 
         pop(); /* t1 = fator*/
         gen_code(OUT, t1, 0, 0);
@@ -1470,12 +1485,16 @@ case 33:
         /* gen_code(LD, t1, -offset, t1); // t1 = dMem[-offset + t1]*/
         /* gen_code(OUT, t1, 0, 0);*/
     }
-#line 1474 "y.tab.c"
+#line 1489 "y.tab.c"
 break;
 case 34:
-#line 282 "sintatico.y"
+#line 294 "sintatico.y"
 	{
         int offset = utilizar(yystack.l_mark[-2].cadeia);
+
+        if (offset < 0) {
+            return 1;
+        }
 
         pop(); /* t1 = expressao*/
         
@@ -1483,12 +1502,16 @@ case 34:
         gen_code(LD, t2, 0, t2); /* t2 = dMem[0] = 1023*/
         gen_code(ST, t1, -offset, t2); /* dMem[-offset + t2] = reg[t1]*/
     }
-#line 1487 "y.tab.c"
+#line 1506 "y.tab.c"
 break;
 case 36:
-#line 295 "sintatico.y"
+#line 311 "sintatico.y"
 	{ 
         int offset = utilizar(yystack.l_mark[0].cadeia);
+
+        if (offset < 0) {
+            return 1;
+        }
 
         gen_code(LDC, t1, 0, 0); /* t1 = 0*/
         gen_code(LD, t1, 0, t1); /* t1 = dMem[0 + t1] = dMem[0] = 1023*/
@@ -1497,10 +1520,10 @@ case 36:
         
         yyval.cadeia = yystack.l_mark[0].cadeia; /* Pass the identifier name up the parse tree*/
     }
-#line 1501 "y.tab.c"
+#line 1524 "y.tab.c"
 break;
 case 37:
-#line 308 "sintatico.y"
+#line 328 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1510,10 +1533,10 @@ case 37:
         gen_code(LDC, t1, 0, 0);
         push();
     }
-#line 1514 "y.tab.c"
+#line 1537 "y.tab.c"
 break;
 case 38:
-#line 317 "sintatico.y"
+#line 337 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1523,10 +1546,10 @@ case 38:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1527 "y.tab.c"
+#line 1550 "y.tab.c"
 break;
 case 39:
-#line 326 "sintatico.y"
+#line 346 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1536,10 +1559,10 @@ case 39:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1540 "y.tab.c"
+#line 1563 "y.tab.c"
 break;
 case 40:
-#line 335 "sintatico.y"
+#line 355 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1549,10 +1572,10 @@ case 40:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1553 "y.tab.c"
+#line 1576 "y.tab.c"
 break;
 case 41:
-#line 344 "sintatico.y"
+#line 364 "sintatico.y"
 	{
         ari_op(SUB);
         pop(); /* t1 = stack.top(); stack.pop();*/
@@ -1564,10 +1587,10 @@ case 41:
         
         push(); /* push(t1) (t1 = {0 ou 1})*/
     }
-#line 1568 "y.tab.c"
+#line 1591 "y.tab.c"
 break;
 case 42:
-#line 355 "sintatico.y"
+#line 375 "sintatico.y"
 	{
         ari_op(SUB);
         pop();
@@ -1577,71 +1600,71 @@ case 42:
         gen_code(LDC, t1, 0, 0); 
         push();
     }
-#line 1581 "y.tab.c"
+#line 1604 "y.tab.c"
 break;
 case 45:
-#line 369 "sintatico.y"
+#line 389 "sintatico.y"
 	{ ari_op(ADD); }
-#line 1586 "y.tab.c"
+#line 1609 "y.tab.c"
 break;
 case 46:
-#line 370 "sintatico.y"
+#line 390 "sintatico.y"
 	{ ari_op(SUB); }
-#line 1591 "y.tab.c"
+#line 1614 "y.tab.c"
 break;
 case 47:
-#line 371 "sintatico.y"
+#line 391 "sintatico.y"
 	{ ari_op(MUL); }
-#line 1596 "y.tab.c"
+#line 1619 "y.tab.c"
 break;
 case 48:
-#line 372 "sintatico.y"
+#line 392 "sintatico.y"
 	{ ari_op(DIV); }
-#line 1601 "y.tab.c"
+#line 1624 "y.tab.c"
 break;
 case 52:
-#line 394 "sintatico.y"
+#line 401 "sintatico.y"
 	{ ari_op(ADD); }
-#line 1606 "y.tab.c"
+#line 1629 "y.tab.c"
 break;
 case 53:
-#line 395 "sintatico.y"
+#line 402 "sintatico.y"
 	{ ari_op(SUB); }
-#line 1611 "y.tab.c"
+#line 1634 "y.tab.c"
 break;
 case 54:
-#line 396 "sintatico.y"
+#line 403 "sintatico.y"
 	{ ari_op(MUL); }
-#line 1616 "y.tab.c"
+#line 1639 "y.tab.c"
 break;
 case 55:
-#line 397 "sintatico.y"
+#line 404 "sintatico.y"
 	{ ari_op(DIV); }
-#line 1621 "y.tab.c"
+#line 1644 "y.tab.c"
 break;
 case 56:
-#line 398 "sintatico.y"
+#line 405 "sintatico.y"
 	{ /* // aqui não sei se  preciso fazer algum tipo de tratamento, já que já foi tratado algo na variavel lá em cima */ }
-#line 1626 "y.tab.c"
+#line 1649 "y.tab.c"
 break;
 case 57:
-#line 399 "sintatico.y"
+#line 406 "sintatico.y"
 	{
         gen_code(LDC, t1, yystack.l_mark[0].intval, 0);
         push();
     }
-#line 1634 "y.tab.c"
+#line 1657 "y.tab.c"
 break;
 case 58:
-#line 403 "sintatico.y"
+#line 410 "sintatico.y"
 	{ /* números negativos*/
         gen_code(LDC, t1, -1, 0);
         push();
         ari_op(MUL);
     }
-#line 1643 "y.tab.c"
+#line 1666 "y.tab.c"
 break;
-#line 1645 "y.tab.c"
+#line 1668 "y.tab.c"
     default:
         break;
     }

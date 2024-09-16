@@ -5,27 +5,34 @@
 #include "tabela_de_simbolos.h"
 #include "code_generator.h"
 
+#define MAX_ERRORS 16
+#define MAX_STR_SIZE 128
+
 #define MAX_STACK_SIZE 32
 #define stack_push(sp, n) (*((sp)++) = (n))
 #define stack_pop(sp) (*--(sp))
 
-void declarar(char* nome) {
+char errors[MAX_ERRORS][MAX_STR_SIZE];
+int number_of_errors = 0;
+
+int declarar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
     if (s != NULL) {
-        printf("ERRO: O identificador \"%s\" já está definido\n", nome);
-        exit(1);
+        sprintf(errors[number_of_errors++], "ERRO: O identificador \"%s\" já está definido\n", nome);
+        return -1;
     }
 
     s = adicionar_simbolo(nome);
+    return 0;
 }
 
 int utilizar(char* nome) {
     simbolo* s = procurar_simbolo(nome);
 
     if (s == NULL) {
-        printf("ERRO: O identificador \"%s\" não foi definido\n", nome);
-        exit(1);
+        sprintf(errors[number_of_errors++], "ERRO: O identificador \"%s\" não foi definido\n", nome);
+        return -1;
     }
 
     s->usada = 1;
@@ -58,7 +65,6 @@ int *start_if_ptr = stack1, *start_else_ptr = stack2, *start_comp_ptr = stack3, 
 %union {
     char *cadeia;
     int intval;
-
 }
 
 /* Definicoes de tokens */
@@ -117,7 +123,7 @@ programa: INT MAIN PARENTESESQUERDO VOID PARENTESEDIREITO CHAVESQUERDA
 
         while (atual != NULL) {
             if (atual->usada == 0) {
-                printf("WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
+                sprintf(errors[number_of_errors++], "WARNING: O identificador \"%s\" foi declarado mas não foi utilizado\n", atual->nome);
             }
 
             atual = atual->prox;
@@ -142,7 +148,9 @@ lista_declaracoes:
 declaracao_var:
     tipo IDENTIFICADOR PONTOVIRGULA {
         //printf("declara %s\n", $2);
-        declarar($2); 
+        if (declarar($2) < 0) {
+            return 0;
+        } 
     }
     ;
 
@@ -256,6 +264,10 @@ afirmacao_leia:
     LEIA PARENTESESQUERDO IDENTIFICADOR PARENTESEDIREITO PONTOVIRGULA { 
         int offset = utilizar($3);
 
+        if (offset < 0) {
+            return 0;
+        }
+
         gen_code(IN, t1, 0, 0); // t1 = input()
 
         gen_code(LDC, t2, 0, 0); // t2 = 0
@@ -282,6 +294,10 @@ expressao:
     IDENTIFICADOR ATRIBUICAO expressao {
         int offset = utilizar($1);
 
+        if (offset < 0) {
+            return 0;
+        }
+
         pop(); // t1 = expressao
         
         gen_code(LDC, t2, 0, 0); // t2 = 0
@@ -294,6 +310,10 @@ expressao:
 variavel:
     IDENTIFICADOR { 
         int offset = utilizar($1);
+
+        if (offset < 0) {
+            return 0;
+        }
 
         gen_code(LDC, t1, 0, 0); // t1 = 0
         gen_code(LD, t1, 0, t1); // t1 = dMem[0 + t1] = dMem[0] = 1023
@@ -416,13 +436,19 @@ int main(int argc, char **argv) {
     fclose(output_file);
     
     // print no terminal
-    //print_code();
+    // print_code();
+
+    for (int i = 0; i < number_of_errors; i++) {
+        printf("%s", errors[i]);
+    }
 
     return 0;
 }
 
 int yyerror(char *s) {
+    
     fprintf(stderr, "Problema com a análise sintática! %s\n", s);
+    
     return 0;
 }
 

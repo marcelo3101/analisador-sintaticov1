@@ -43,7 +43,6 @@
 typedef union YYSTYPE {
     char *cadeia;
     int intval;
-
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 extern YYSTYPE yylval;

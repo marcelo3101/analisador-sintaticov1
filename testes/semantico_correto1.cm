@@ -1,9 +1,4 @@
 int main(void) {
-    int x;
-
-    x = 2 + 2 * 2 + 2 * 3;
-
+    x = 2;
     escreva(x);
-
-   
 }
